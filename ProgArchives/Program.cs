@@ -25,13 +25,13 @@ namespace ProgArchives
 
             //Find last artist on site
             //http://www.progarchives.com/artist.asp?id=9129
-            int lastArtistPage = 10915;  //11505
-            bool doArtists = false;
+            int lastArtistPage = 10918;  //11505
+            bool doArtists = true;
 
             //Find last album on site
             //http://www.progarchives.com/album.asp?id=47590
             int lastAlbumPage = 62415;  //70616
-            bool doAlbuns = true;
+            bool doAlbuns = false;
 
             string fullNameDB = System.Environment.CurrentDirectory + relName;
 
