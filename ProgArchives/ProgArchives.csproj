@@ -66,9 +66,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccessManager.cs" />
-    <Compile Include="Album.cs" />
-    <Compile Include="Artist.cs" />
+    <Compile Include="AccessDbManager.cs" />
+    <Compile Include="AlbumManager.cs" />
+    <Compile Include="AlbumInfo.cs" />
+    <Compile Include="ArtistManager.cs" />
+    <Compile Include="ArtistInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="app.config" />
