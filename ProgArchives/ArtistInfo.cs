@@ -7,7 +7,7 @@ namespace ProgArchives
         public string Artist { get; private set; }
         public string Country { get; private set; }
         public string Style { get; private set; }
-        public bool IsValid { get; private set; }
+        public bool IsInactive { get; private set; }
 
         public ArtistInfo(int id)
         {
@@ -15,7 +15,7 @@ namespace ProgArchives
             Artist = "";
             Country = "";
             Style = "";
-            IsValid = false;
+            IsInactive = true;
         }
 
         public ArtistInfo(int id, string artist, string country, string style)
@@ -24,7 +24,7 @@ namespace ProgArchives
             Artist = artist;
             Country = country;
             Style = style;
-            IsValid = true;
+            IsInactive = false;
         }
     }
 }

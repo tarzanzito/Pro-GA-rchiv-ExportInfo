@@ -51,7 +51,7 @@ namespace ProgArchives
                         + "'" + artistInfo.Artist.Replace("'","''") + "',"
                         + "'" + artistInfo.Country.Replace("'", "''") + "',"
                         + "'" + artistInfo.Style.Replace("'", "''") + "',"
-                        + artistInfo.IsValid.ToString()
+                        + artistInfo.IsInactive.ToString()
                         + ")";
 
             return sql;

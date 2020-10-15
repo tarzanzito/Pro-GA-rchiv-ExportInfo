@@ -55,24 +55,32 @@ namespace ProgArchives
 
             //yearAndType
             //<strong>Studio Album, released in 1972</strong><br><br>
+            string yearAndType = "";
             strB = @"<strong>";
             strE = "</strong>";
-            posB = htmlData.IndexOf(strB);
-            posE = htmlData.IndexOf(strE, posB);
-            len = strB.Length;
-
-            string yearAndType = htmlData.Substring(posB + len, posE - posB - len).Trim();
-
-            //confirm if year (is  NEW !!!!
-            posB = yearAndType.IndexOf("released in");
-            if (posB == -1)
+            posB = 0;
+            do
             {
-                //  posB = posE;
-                posB = htmlData.IndexOf(strB, posE);
+                posB++;
+                posB = htmlData.IndexOf(strB, posB);
                 posE = htmlData.IndexOf(strE, posB);
                 len = strB.Length;
+
                 yearAndType = htmlData.Substring(posB + len, posE - posB - len).Trim();
+
+                //confirm if year (is  NEW !!!!
+                len = yearAndType.IndexOf("released in");
             }
+            while (len == -1);
+
+            //if (posB == -1)
+            //{
+            //    //  posB = posE;
+            //    posB = htmlData.IndexOf(strB, posE);
+            //    posE = htmlData.IndexOf(strE, posB);
+            //    len = strB.Length;
+            //    yearAndType = htmlData.Substring(posB + len, posE - posB - len).Trim();
+            //}
 
 
             //htmlTracks
@@ -134,7 +142,7 @@ namespace ProgArchives
                         + "'" + albumInfo.HtmlMusicians.Replace("'", "''") + "',"
                         + "'" + albumInfo.Year + "',"
                         + "'" + albumInfo.Type + "',"
-                        + albumInfo.IsValid.ToString() + ","
+                        + albumInfo.IsInactive.ToString() + ","
                         + albumInfo.Downloaded.ToString()
                         + ")";
 

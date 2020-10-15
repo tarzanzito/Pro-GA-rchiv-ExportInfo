@@ -10,17 +10,18 @@ namespace ProgArchives
         [System.STAThread]
         static int Main(string[] args)
         {
+            //LAST RUN 2020-10-15
             //LAST RUN 2019-06-20
 
             //Find last artist on site
             //http://www.progarchives.com/artist.asp?id=9129
-            int toArtistPage = 10918;  //11505
+            int toArtistPage = 11505; //11505
             bool doArtists = false;
 
             //Find last album on site
             //http://www.progarchives.com/album.asp?id=47590
-            int toAlbumPage = 62415;  //70616
-            bool doAlbuns = false;
+            int toAlbumPage = 70616; //62415;  //70616
+            bool doAlbuns = true;
 
             ////
 
@@ -33,7 +34,7 @@ namespace ProgArchives
             string dbName = "ProgArchives2010.mdb";
 
 #if DEBUG
-            string relName = @"\..\..\..\" + dbName;
+            string relName = @"\..\..\Resources\" + dbName;
 #else
             string relName = @"\" + dbName;
 #endif

@@ -16,7 +16,7 @@ namespace ProgArchives
         public string HtmlMusicians { get; private set; }
         public string Year { get; private set; }
         public string Type { get; private set; }
-        public bool IsValid { get; private set; }
+        public bool IsInactive { get; private set; }
         public bool Downloaded { get; private set; }
 
         public AlbumInfo(int id)
@@ -31,7 +31,7 @@ namespace ProgArchives
             HtmlMusicians = "";
             Year = "";
             Type = "";
-            IsValid = false;
+            IsInactive = true;
             Downloaded = false;
         }
 
@@ -48,7 +48,7 @@ namespace ProgArchives
             HtmlMusicians = htmlMusicians;
             Year = year;
             Type = type;
-            IsValid = true;
+            IsInactive = false;
             Downloaded = downloaded;
         } 
     }
