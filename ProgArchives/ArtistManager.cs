@@ -8,38 +8,11 @@ namespace ProgArchives
             if (htmlData.Length == 0)
                 return new ProgArchives.ArtistInfo(page);
 
-            string strB;
-            string strE;
-            int posB;
-            int posE;
-            int len;
+            string artist = GetArtist(htmlData);
+            string[] words = GetCountryAndStyle(htmlData);
 
-            //get Artist
-            strB = "<h1>";
-            strE = "</h1>";
-            posB = htmlData.IndexOf(strB);
-            posE = htmlData.IndexOf(strE, posB);
-            len = strB.Length; // HtmlData.Length;
-
-            string artist = htmlData.Substring(posB + len, posE - posB - len).Trim().Replace(";", "|");
-
-            //get Style, Country
-            strB = @"<h2 style=""margin:1px 0px;padding:0;color:#777;font-weight:normal;"">";
-            strE = "</h2>";
-            posB = htmlData.IndexOf(strB);
-            posE = htmlData.IndexOf(strE, posB);
-            len = strB.Length; //HtmlData.Length;
-
-            string tmp = htmlData.Substring(posB + len, posE - posB - len);
-            tmp = tmp.Replace("&bull;", "~");
-
-            char[] chrsW = new char[1] { '~' };
-            string[] words = tmp.Split(chrsW);
-
-            string style = words[0].Trim().Replace(";", "|");
-            string country = words[1].Trim().Replace(";", "|");
-
-            bool isValid = (artist != "" && country != "");
+            string style = words[0];
+            string country = words[1];
 
             return new ProgArchives.ArtistInfo(page, artist, country, style);
         }
@@ -55,6 +28,41 @@ namespace ProgArchives
                         + ")";
 
             return sql;
+        }
+
+        private static string GetArtist(string htmlData)
+        {
+            //get Artist
+            string beginTag = "<h1>";
+            string endTag = "</h1>";
+            int bPos = htmlData.IndexOf(beginTag);
+            int ePos = htmlData.IndexOf(endTag, bPos);
+            int len = beginTag.Length;
+
+            string artist = htmlData.Substring(bPos + len, ePos - bPos - len).Trim().Replace(";", "|");
+
+            return artist;
+        }
+
+        private static string[] GetCountryAndStyle(string htmlData)
+        {
+            string beginTag = @"<h2 style=""margin:1px 0px;padding:0;color:#777;font-weight:normal;"">";
+            string endTag = "</h2>";
+
+            int bPos = htmlData.IndexOf(beginTag);
+            int ePos = htmlData.IndexOf(endTag, bPos);
+            int len = beginTag.Length;
+
+            string tmp = htmlData.Substring(bPos + len, ePos - bPos - len);
+            tmp = tmp.Replace("&bull;", "~");
+
+            char[] chrsW = new char[1] { '~' };
+            string[] words = tmp.Split(chrsW);
+
+            words[0] = words[0].Trim().Replace(";", "|");
+            words[1] = words[1].Trim().Replace(";", "|");
+
+            return words;
         }
     }
 }

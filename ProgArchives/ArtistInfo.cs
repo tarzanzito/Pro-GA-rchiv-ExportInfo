@@ -24,7 +24,7 @@ namespace ProgArchives
             Artist = artist;
             Country = country;
             Style = style;
-            IsInactive = false;
+            IsInactive = (artist == "");
         }
     }
 }

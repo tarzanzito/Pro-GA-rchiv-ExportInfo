@@ -17,7 +17,6 @@ namespace ProgArchives
         public string Year { get; private set; }
         public string Type { get; private set; }
         public bool IsInactive { get; private set; }
-        public bool Downloaded { get; private set; }
 
         public AlbumInfo(int id)
         {
@@ -32,11 +31,10 @@ namespace ProgArchives
             Year = "";
             Type = "";
             IsInactive = true;
-            Downloaded = false;
         }
 
         public AlbumInfo(int id, string album, int artistId, string artist, string coverLink, string yearAndType,
-            string htmlTracks, string htmlMusicians, string year, string type, bool downloaded)
+            string htmlTracks, string htmlMusicians, string year, string type)
         {
             ID = id;
             Album = album;
@@ -48,8 +46,7 @@ namespace ProgArchives
             HtmlMusicians = htmlMusicians;
             Year = year;
             Type = type;
-            IsInactive = false;
-            Downloaded = downloaded;
+            IsInactive = (Album == "");
         } 
     }
 }
