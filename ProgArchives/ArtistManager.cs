@@ -30,6 +30,18 @@ namespace ProgArchives
             return sql;
         }
 
+        public static string GetSqlUpdateStatement(ProgArchives.ArtistInfo artistInfo)
+        {
+            string sql = "UPDATE Artists SET "
+                        + "Artist = '" + artistInfo.Artist.Replace("'", "''") + "', "
+                        + "Country = '" + artistInfo.Country.Replace("'", "''") + "', "
+                        + "Style = '" + artistInfo.Style.Replace("'", "''") + "', "
+                        + "Inactive = " + artistInfo.IsInactive.ToString() + " "
+                        + "WHERE Artist_ID = " + artistInfo.ID.ToString().Trim();
+
+            return sql;
+        }
+
         private static string GetArtist(string htmlData)
         {
             //get Artist

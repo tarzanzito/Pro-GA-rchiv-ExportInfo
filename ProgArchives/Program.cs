@@ -7,6 +7,9 @@ namespace ProgArchives
 
     static class Program
     {
+        private static ProgArchives.SiteManager siteManager = null;
+        private static ProgArchives.AccessDbManager accessDbManager = null;
+
         [System.STAThread]
         static int Main(string[] args)
         {
@@ -41,27 +44,33 @@ namespace ProgArchives
             string fullNameDB = System.Environment.CurrentDirectory + relName;
 
             //Open access database
-            AccessDbManager accessDbManager = new ProgArchives.AccessDbManager(fullNameDB);
+            accessDbManager = new ProgArchives.AccessDbManager(fullNameDB);
             accessDbManager.Open();
 
             //open site map
-            ProgArchives.SiteManager siteManager = null;
+            
             if (hasProxy)
                 siteManager = new SiteManager(userID, userPassword, userDomain, proxyAddress, proxyPort);
             else
                 siteManager = new SiteManager();
 
+            //////////
+            //accessDbManager.ReadTable("Artists", ProcessRowArtist);
+            //accessDbManager.ReadTable("Albuns", ProcessRowAlbum);
+            //return 0;
+            ////////
+
             //Process Artists
             if (doArtists)
             {
-                int lastArtistPageInDd = accessDbManager.GetLastArtistPage() + 1;
+                int lastArtistPageInDd = accessDbManager.GetLastPage("Artists", "Artist_ID") + 1;
                 ProcessArtists(lastArtistPageInDd, toArtistPage, siteManager, accessDbManager);
             }
 
             //Process Albuns
             if (doAlbuns)
             {
-                int lastAlbumPageInDb = accessDbManager.GetLastAlbumPage() + 1;
+                int lastAlbumPageInDb = accessDbManager.GetLastPage("Albuns", "Album_ID") + 1;
                 ProcessAlbuns(lastAlbumPageInDb, toAlbumPage, siteManager, accessDbManager);
             }
 
@@ -76,11 +85,12 @@ namespace ProgArchives
             {
                 string htmlData = siteManager.GetAllData("http://www.progarchives.com/artist.asp?id=" + page.ToString().Trim());
 
-                    ProgArchives.ArtistInfo artistInfo = ArtistManager.CreateFromHtmlData(page, htmlData);
+                ProgArchives.ArtistInfo artistInfo = ArtistManager.CreateFromHtmlData(page, htmlData);
 
-                    accessDbManager.InsertArtist(artistInfo);
+                string sql = ArtistManager.GetSqlInsertStatement(artistInfo);
+                accessDbManager.ExecuteNonQuery(sql);
 
-                    System.Console.WriteLine("Artist:" + page.ToString().Trim());
+                System.Console.WriteLine("Artist:" + page.ToString().Trim());
             }
         }
 
@@ -93,13 +103,14 @@ namespace ProgArchives
 
                 ProgArchives.AlbumInfo albumInfo = AlbumManager.CreateFromHtmlData(page, htmlData);
 
-                accessDbManager.InsertAlbum(albumInfo);
+                string sql = AlbumManager.GetSqlInsertStatement(albumInfo);
+                accessDbManager.ExecuteNonQuery(sql);
 
                 System.Console.WriteLine("Album:" + page.ToString().Trim());
             }
         }
 
-        private static void ProcessCountries( SiteManager siteManager, AccessDbManager accessDbManager)
+        private static void ProcessCountries(SiteManager siteManager, AccessDbManager accessDbManager)
         {
             int fromPage = 1;
             int toPage = 220;
@@ -108,9 +119,9 @@ namespace ProgArchives
             {
                 string htmlData = siteManager.GetAllData("http://www.progarchives.com/Bands-country.asp?country=" + page.ToString().Trim());
 
-                 string countryName = CreateCountryFromHtmlData(page, htmlData);
+                string countryName = CreateCountryFromHtmlData(page, htmlData);
 
-                System.Console.WriteLine(page.ToString().Trim()  +";" + countryName);
+                System.Console.WriteLine(page.ToString().Trim() + ";" + countryName);
                 System.Diagnostics.Debug.Print(page.ToString().Trim() + ";" + countryName);
                 i = 1;
             }
@@ -126,12 +137,60 @@ namespace ProgArchives
 
             int posB = htmlData.IndexOf(strB);
             int posE = htmlData.IndexOf(strE, posB);
-            int len = strB.Length; 
+            int len = strB.Length;
 
             string title = htmlData.Substring(posB + len, posE - posB - len).Trim();
             string countryName = title.Replace("Progressive Rock & Related Bands/artists from", "").Trim();
 
             return countryName;
         }
+
+///////////////////
+
+        private static void ProcessRowArtist(System.Data.OleDb.OleDbDataReader dataReader)
+        {
+            string artist = dataReader["Artist"].ToString();
+            int artist_id = System.Convert.ToInt32(dataReader["Artist_ID"].ToString());
+            bool inactive = System.Convert.ToBoolean(dataReader["Inactive"].ToString());
+
+            if (!inactive)
+            {
+                if ((artist.IndexOf("?") != -1) || (artist.IndexOf("&#") != -1))
+                {
+                    string htmlData = siteManager.GetAllData("http://www.progarchives.com/artist.asp?id=" + artist_id.ToString().Trim());
+                    ProgArchives.ArtistInfo artistInfo = ArtistManager.CreateFromHtmlData(artist_id, htmlData);
+                    if (artistInfo.Artist != artist)
+                    {
+                        string sql = ArtistManager.GetSqlUpdateStatement(artistInfo);
+                        accessDbManager.ExecuteNonQuery(sql);
+                    }
+                }
+            }
+        }
+
+        private static void ProcessRowAlbum(System.Data.OleDb.OleDbDataReader dataReader)
+        {
+            string artist = dataReader["Artist"].ToString();
+            string album = dataReader["Album"].ToString();
+            int album_id = System.Convert.ToInt32(dataReader["Album_ID"].ToString());
+            bool inactive = System.Convert.ToBoolean(dataReader["Inactive"].ToString());
+
+            if (!inactive)
+            {
+                if ((artist.IndexOf("?") != -1) || (artist.IndexOf("&#") != -1) ||
+                    (album.IndexOf("?") != -1) || (album.IndexOf("&#") != -1))
+                {
+                    string htmlData = siteManager.GetAllData("http://www.progarchives.com/album.asp?id=" + album_id.ToString().Trim());
+                    ProgArchives.AlbumInfo albumInfo = AlbumManager.CreateFromHtmlData(album_id, htmlData);
+                    if ((albumInfo.Artist != artist) || (albumInfo.Album != album))
+                    {
+                        string sql = AlbumManager.GetSqlUpdateStatement(albumInfo);
+                        accessDbManager.ExecuteNonQuery(sql);
+                    }
+
+                }
+            }
+        }
+
     }
 }

@@ -71,6 +71,7 @@
     <Compile Include="AlbumInfo.cs" />
     <Compile Include="ArtistManager.cs" />
     <Compile Include="ArtistInfo.cs" />
+    <Compile Include="Class1.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="app.config" />
@@ -93,7 +94,6 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Content Include="Resources\ProgArchives2010.mdb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

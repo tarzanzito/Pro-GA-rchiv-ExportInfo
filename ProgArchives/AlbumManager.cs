@@ -47,6 +47,23 @@ namespace ProgArchives
             return sql;
         }
 
+        public static string GetSqlUpdateStatement(AlbumInfo albumInfo)
+        {
+            string sql = "UPDATE albuns SET "
+            + "Album = '" + albumInfo.Album.Replace("'", "''") + "', "
+            + "Artist_ID = " + albumInfo.ArtistId.ToString() + ", "
+            + "Artist = '" + albumInfo.Artist.Replace("'", "''") + "', "
+            + "Cover = '" + albumInfo.CoverLink.Replace("'", "''") + "', "
+            + "YearAndType = '" + albumInfo.YearAndType.Replace("'", "''") + "', "
+            + "Tracks = '" + albumInfo.HtmlTracks.Replace("'", "''") + "', "
+            + "Musicians = '" + albumInfo.HtmlMusicians.Replace("'", "''") + "', "
+            + "YearN = '" + albumInfo.Year + "', "
+            + "Type = '" + albumInfo.Type + "', "
+            + "Inactive = " + albumInfo.IsInactive.ToString() + " "
+            + "WHERE Album_ID = " + albumInfo.ID.ToString();
+            return sql;
+        }
+
         public static string GetAlbum(string htmlData)
         {
             string beginTag = @"<h1 style=""line-height:1em;"">";
@@ -105,6 +122,7 @@ namespace ProgArchives
             int bPos = 0;
             int ePos;
             int count = 0;
+            int rPos = 0;
             do
             {
                 count++;
@@ -118,9 +136,9 @@ namespace ProgArchives
                     yearAndType = "";
 
                 //confirm if year and type
-                len = yearAndType.IndexOf("released in");
+                rPos = yearAndType.IndexOf("released in");
             }
-            while ((len == -1) && (count < 5));
+            while ((rPos == -1) && (count < 5));
 
             return yearAndType;
         }

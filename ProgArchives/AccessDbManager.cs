@@ -82,26 +82,14 @@ namespace ProgArchives
             }
         }
 
-        public void InsertArtist(ArtistInfo artist)
-        {
-            string sql = ArtistManager.GetSqlInsertStatement(artist);
-            Insert(sql);
-        }
-
-        public void InsertAlbum(ProgArchives.AlbumInfo album)
-        {
-            string sql = ProgArchives.AlbumManager.GetSqlInsertStatement(album);
-            Insert(sql);
-        }
-
-        private void Insert(string InsertStatement)
+        public void ExecuteNonQuery(string Statement)
         {
             if (!IsOpen)
                 return;
 
             try
             {
-                System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(InsertStatement, _connection);
+                System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(Statement, _connection);
                 command.ExecuteNonQuery();
             }
             catch (System.Exception ex)
@@ -110,17 +98,7 @@ namespace ProgArchives
             }
         }
 
-        public int GetLastArtistPage()
-        {
-            return GetLastPage("Artists", "Artist_ID");
-        }
-
-        public int GetLastAlbumPage()
-        {
-            return GetLastPage("Albuns", "Album_ID");
-        }
-
-        private int GetLastPage(string TableName, string FieldName)
+        public int GetLastPage(string TableName, string FieldName)
         {
             if (!IsOpen)
                 return 0;
@@ -150,6 +128,32 @@ namespace ProgArchives
             }
 
             return value;
+        }
+
+
+        public void ReadTable(string TableName, System.Action<System.Data.OleDb.OleDbDataReader> action)
+        {
+            if (!IsOpen)
+                return;
+
+            string selectStatement = "SELECT * FROM " + TableName;
+
+            try
+            {
+                System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(selectStatement, _connection);
+
+                System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
+
+                while (dataReader.Read())
+                {
+                    action(dataReader);
+                }
+                dataReader.Close();
+            }
+            catch (System.Exception ex)
+            {
+                throw ex; //TODO
+            }
         }
     }
 }
