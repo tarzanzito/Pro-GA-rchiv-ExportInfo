@@ -54,12 +54,6 @@ namespace ProgArchives
             else
                 siteManager = new SiteManager();
 
-            //////////
-            //accessDbManager.ReadTable("Artists", ProcessRowArtist);
-            //accessDbManager.ReadTable("Albuns", ProcessRowAlbum);
-            //return 0;
-            ////////
-
             //Process Artists
             if (doArtists)
             {
@@ -73,6 +67,12 @@ namespace ProgArchives
                 int lastAlbumPageInDb = accessDbManager.GetLastPage("Albuns", "Album_ID") + 1;
                 ProcessAlbuns(lastAlbumPageInDb, toAlbumPage, siteManager, accessDbManager);
             }
+
+            ///Updates //
+            //accessDbManager.ReadTable("Artists", ProcessRowArtist);
+            //accessDbManager.ReadTable("Albuns", ProcessRowAlbum);
+            //return 0;
+            ////////
 
             accessDbManager.Close();
 
