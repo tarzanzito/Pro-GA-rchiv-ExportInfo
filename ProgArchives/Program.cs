@@ -13,18 +13,19 @@ namespace ProgArchives
         [System.STAThread]
         static int Main(string[] args)
         {
+            //LAST RUN 2022-06-03
             //LAST RUN 2021-09-20
             //LAST RUN 2020-10-15
             //LAST RUN 2019-06-20
 
             //Find last artist on site
             //http://www.progarchives.com/artist.asp?id=9129
-            int toArtistPage = 11933; //while < toArtistPage 
+            int toArtistPage = 12189; //while < toArtistPage 
             bool doArtists = false;
 
             //Find last album on site
             //http://www.progarchives.com/album.asp?id=47590
-            int toAlbumPage = 73496; //while < toArtistPage 
+            int toAlbumPage = 75581; //while < toArtistPage 
             bool doAlbuns = true;
 
             ////
