@@ -20,12 +20,12 @@ namespace ProgArchives
 
             //Find last artist on site
             //http://www.progarchives.com/artist.asp?id=9129
-            int toArtistPage = 12189; //while < toArtistPage 
+            int toArtistPage = 12216; //while < toArtistPage 
             bool doArtists = false;
 
             //Find last album on site
             //http://www.progarchives.com/album.asp?id=47590
-            int toAlbumPage = 75581; //while < toArtistPage 
+            int toAlbumPage = 75900; //while < toArtistPage 
             bool doAlbuns = true;
 
             ////
