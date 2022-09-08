@@ -17,15 +17,16 @@ namespace ProgArchives
             //LAST RUN 2021-09-20
             //LAST RUN 2020-10-15
             //LAST RUN 2019-06-20
+            //LAST RUN 2022-09-08
 
             //Find last artist on site
             //http://www.progarchives.com/artist.asp?id=9129
-            int toArtistPage = 12216; //while < toArtistPage 
+            int toArtistPage = 12261; //while < toArtistPage 
             bool doArtists = false;
 
             //Find last album on site
-            //http://www.progarchives.com/album.asp?id=47590
-            int toAlbumPage = 75900; //while < toArtistPage 
+            //http://www.progarchives.com/album.asp?id=9129
+            int toAlbumPage = 76528; //while < toArtistPage 
             bool doAlbuns = true;
 
             ////
