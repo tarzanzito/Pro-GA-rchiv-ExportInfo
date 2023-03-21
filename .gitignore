@@ -288,3 +288,4 @@ __pycache__/
 *.xsd.cs
 /ProgArchives/Resources/ProgArchives2010.mdb
 /ProgArchives/Resources/ProgArchives2010-Backup.mdb
+/ProgArchives/delete
