@@ -5,7 +5,7 @@ using System.Data.OleDb;
 using System.IO;
 using System.Text;
 
-namespace ProgArchives
+namespace Candal
 {
     public class DataBaseOperations
     {

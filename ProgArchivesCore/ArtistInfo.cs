@@ -1,5 +1,5 @@
 ﻿
-namespace ProgArchives
+namespace Candal.Core
 {
     public class ArtistInfo
     {

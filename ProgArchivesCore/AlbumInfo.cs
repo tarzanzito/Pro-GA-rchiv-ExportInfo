@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ProgArchives
+﻿
+namespace Candal.Core
 {
     public class AlbumInfo
     {
