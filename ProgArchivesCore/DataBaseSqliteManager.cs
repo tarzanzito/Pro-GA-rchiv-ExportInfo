@@ -1,13 +1,19 @@
 ﻿
+using System;
+
+
 namespace Candal.Core
 {
+    /// <summary>
+    /// Manage "Sqlite" Database
+    /// </summary>
     internal class DataBaseSqliteManager : IDataBaseManager
     {
         private string _databaseName;
         private string _connectionString;
         private System.Data.OleDb.OleDbConnection _connection = null;
 
-        public bool IsValid
+        private bool IsValid
         {
             get
             {
@@ -15,118 +21,78 @@ namespace Candal.Core
             }
         }
 
-        public bool IsOpen
+        private bool IsOpen
         {
             get
             {
-                if (IsValid)
-                    return (_connection.State == System.Data.ConnectionState.Open);
-
-                return false;
+                return _connection.State == System.Data.ConnectionState.Open;
             }
         }
 
         public DataBaseSqliteManager(string DatabaseName)
         {
-            try
-            {
-                _databaseName = DatabaseName;
-                _connectionString = "Provider=Microsoft.Jet.OLEDB.4.0;" + "Data source=" + _databaseName;
+            _databaseName = DatabaseName;
+            //_connectionString = "Provider=Microsoft.Jet.OLEDB.12.0;" + "Data source=" + _databaseName;
+            _connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;" + "Data source=" + _databaseName;
 
-                _connection = new System.Data.OleDb.OleDbConnection();
-                _connection.ConnectionString = _connectionString;
-
-            }
-            catch (System.Exception ex)
-            {
-                _connection = null;
-                throw ex; //TODO
-            }
+            _connection = new System.Data.OleDb.OleDbConnection(_connectionString);
+            Open();
+            Close();
         }
 
         public void Open()
         {
             if (!IsValid)
-                return;
+                throw new Exception("Database is Invalid.");
 
             if (IsOpen)
                 return;
 
-            try
-            {
-                _connection.Open();
-            }
-            catch (System.Exception ex)
-            {
-                _connection = null;
-                throw ex; //TODO
-            }
+            _connection.Open();
         }
 
         public void Close()
         {
+
             if (!IsValid)
-                return;
+                throw new Exception("Database is Invalid.");
 
             if (!IsOpen)
                 return;
 
-            try
-            {
-                _connection.Close();
-            }
-            catch (System.Exception ex)
-            {
-                _connection = null;
-                throw ex;
-            }
+            _connection.Close();
         }
 
         private void ExecuteNonQuery(string Statement)
         {
-            if (!IsOpen)
-                return;
+            Open();
 
-            try
-            {
-                System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(Statement, _connection);
-                command.ExecuteNonQuery();
-            }
-            catch (System.Exception ex)
-            {
-                throw ex; //TODO
-            }
+            System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(Statement, _connection);
+
+            command.ExecuteNonQuery();
         }
 
         private int SelectMax(DataBaseTables dataBaseTable)
         {
-            if (!IsOpen)
-                return 0;
-
             int value = 0;
             string sql = "";
 
-            try
+            Open();
+
+            sql = $"SELECT MAX(ID) AS MaxValue FROM {dataBaseTable.ToString()}";
+
+            System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(sql, _connection);
+
+            System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
+
+            string temp = "";
+            if (dataReader.HasRows)
             {
-                sql = $"SELECT MAX(ID) AS MaxValue FROM {dataBaseTable.ToString()}";
-
-                System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(sql, _connection);
-
-                System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
-
-                string temp = "";
-                if (dataReader.HasRows)
-                {
-                    dataReader.Read();
-                    temp = dataReader["MaxValue"].ToString();
-                }
-
-                System.Int32.TryParse(temp, out value);
+                dataReader.Read();
+                temp = dataReader["MaxValue"].ToString();
             }
-            catch (System.Exception ex)
-            {
-                throw ex; //TODO
-            }
+
+            System.Int32.TryParse(temp, out value);
 
             return value;
         }
@@ -296,34 +262,69 @@ namespace Candal.Core
             ExecuteNonQuery(sql);
         }
 
-        ////////////////////////////////////////
+        //Select
+
+        public CountryInfo SelectCountryByName(string name)
+        {
+            CountryInfo countryInfo = null; ;
+
+            string sql = "SELECT * FROM " +
+                DataBaseTables.Countries.ToString() +
+                " WHERE UPPER(Country) = '" + name.ToUpper() + "'";
+
+            Open();
+
+            System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(sql, _connection);
+
+            System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
+
+            string temp = "";
+            if (dataReader.HasRows)
+            {
+                dataReader.Read();
+
+                int id;
+                string country;
+                bool isInactive;
+
+                temp = dataReader["ID"].ToString();
+                System.Int32.TryParse(temp, out id);
+
+                country = dataReader["Country"].ToString();
+
+                temp = dataReader["Inactive"].ToString();
+                System.Boolean.TryParse(temp, out isInactive);
+
+                countryInfo = new CountryInfo(id, country, isInactive);
+            }
+            else
+                countryInfo = new CountryInfo(0);
+
+            dataReader.Close();
+
+            return countryInfo;
+        }
 
         private void ReadTable(string TableName, System.Action<System.Data.OleDb.OleDbDataReader> action)
         {
-            if (!IsOpen)
-                return;
-
             string selectStatement = "SELECT * FROM " + TableName;
 
-            try
-            {
-                System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(selectStatement, _connection);
 
-                System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
+            Open();
 
-                while (dataReader.Read())
-                {
-                    action(dataReader);
-                }
-                dataReader.Close();
-            }
-            catch (System.Exception ex)
+            System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(selectStatement, _connection);
+
+            System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
+
+            while (dataReader.Read())
             {
-                throw ex; //TODO
+                action(dataReader);
             }
+            dataReader.Close();
         }
     }
 }
+
 
 
 //CREATE TABLE Countries(

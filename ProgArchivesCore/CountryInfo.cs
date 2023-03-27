@@ -1,6 +1,9 @@
 ﻿
 namespace Candal.Core
 {
+    /// <summary>
+    /// Country Info
+    /// </summary>
     public class CountryInfo
     {
         public int ID { get; private set; }
@@ -19,6 +22,13 @@ namespace Candal.Core
             ID = id;
             Country = country;
             IsInactive = (Country == "");
-        } 
+        }
+
+        public CountryInfo(int id, string country, bool isInactive)
+        {
+            ID = id;
+            Country = country;
+            IsInactive = isInactive;
+        }
     }
 }

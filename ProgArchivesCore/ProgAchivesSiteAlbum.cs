@@ -1,6 +1,9 @@
 ﻿
 namespace Candal.Core
 {
+    /// <summary>
+    /// Retrive information from html progarchives "Albums" pages
+    /// </summary>
     internal class ProgAchivesSiteAlbum
     {
         private string _htmlData;

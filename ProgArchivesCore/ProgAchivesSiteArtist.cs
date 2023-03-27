@@ -1,6 +1,9 @@
 ﻿
 namespace Candal.Core
 {
+    /// <summary>
+    /// Retrive information from html progarchives "Artists" pages
+    /// </summary>
     internal class ProgAchivesSiteArtist
     {
         private string _htmlData;

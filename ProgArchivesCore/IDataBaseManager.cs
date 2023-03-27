@@ -1,10 +1,11 @@
 ﻿
 namespace Candal.Core
 {
+    /// <summary>
+    /// Define DataBase Actions
+    /// </summary>
     public interface IDataBaseManager
     {
-        //bool IsValid { get; }
-        //bool IsOpen { get; }
         void Open();
         void Close();
 
@@ -32,5 +33,8 @@ namespace Candal.Core
         void DeleteAllArtists();
         void DeleteAllAlbuns();
         void DeleteAllCountries();
+
+        //Select
+        CountryInfo SelectCountryByName(string name);
     }
 }

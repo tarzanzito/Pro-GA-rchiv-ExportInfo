@@ -1,6 +1,9 @@
 ﻿
 namespace Candal.Core
 {
+    /// <summary>
+    /// Retrive information from html progarchives "Countries" pages
+    /// </summary>
     internal class ProgAchivesSiteCountry
     {
         private string _htmlData;

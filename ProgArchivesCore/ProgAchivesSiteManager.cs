@@ -1,6 +1,12 @@
 ﻿
 namespace Candal.Core
 {
+    /// <summary>
+    /// Manage pages from progarchives site and save info in an DB
+    /// 1- gel all html
+    /// 2- process info in html
+    /// 3- save info in db
+    /// </summary>
     public class ProgAchivesSiteManager
     {
         private SiteManager _siteManager = null;
@@ -35,6 +41,9 @@ namespace Candal.Core
                 string allHtmlData = _siteManager.GetAllHtmlData(uri);
 
                 ArtistInfo artistInfo = progAchivesSiteArtist.GetArtistInfoFromHtmlData(page, allHtmlData);
+
+                CountryInfo countryInfo  = _dataBaseManager.SelectCountryByName(artistInfo.Country);
+                artistInfo.SetCountryId(countryInfo.ID);
 
                 _dataBaseManager.InsertArtist(artistInfo);
 

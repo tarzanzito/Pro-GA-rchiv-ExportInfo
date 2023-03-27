@@ -13,64 +13,73 @@ namespace Candal
 
             bool hasProxy = false;
 
-            //LAST RUN 2022-06-03
-            //LAST RUN 2021-09-20
-            //LAST RUN 2020-10-15
-            //LAST RUN 2019-06-20
             //LAST RUN 2022-09-08
             //LAST RUN 2023-03-16
+            //LAST RUN 2023-03-27
 
             //Find last artist on site
-            //http://www.progarchives.com/artist.asp?id=12412
-            int toArtistPage = 12412; //while < toArtistPage 
+            //http://www.progarchives.com/artist.asp?id=12434
+            int toArtistPage = 12434; //while < toArtistPage 
             bool doArtists = false;
 
             //Find last album on site
-            //http://www.progarchives.com/album.asp?id=78320
-            int toAlbumPage = 78320; //while < toArtistPage 
+            //http://www.progarchives.com/album.asp?id=78430
+            int toAlbumPage = 78430; //while < toArtistPage 
             bool doAlbuns = true;
 
             //Find last country on site
             //http://www.progarchives.com/Bands-country.asp?country=220
             bool doCountries = false;
 
+            bool processOnlyOne = false;
 
-            //Open access database
-            IDataBaseManager dataBaseManager = DatabaseLink();
-
-            //open site manager
-            SiteManager siteManager = SiteManagerLink(hasProxy);
-
-
-            //Process ProgAchivesSite
-            ProgAchivesSiteManager progAchivesSite = new ProgAchivesSiteManager(siteManager, dataBaseManager);
-
-            //Process Artists
-            if (doArtists)
+            try
             {
-                System.Console.WriteLine("Process Artists starting");
-                progAchivesSite.ProcessArtists(toArtistPage, onlyOne: false);
-            }
+                //Open access database
+                IDataBaseManager dataBaseManager = DatabaseLink();
 
-            //Process Albuns
-            if (doAlbuns)
+                //open site manager
+                SiteManager siteManager = SiteManagerLink(hasProxy);
+
+
+                //Process ProgAchivesSite
+                ProgAchivesSiteManager progAchivesSite = new ProgAchivesSiteManager(siteManager, dataBaseManager);
+
+                //Process Artists
+                if (doArtists)
+                {
+                    System.Console.WriteLine("Process Artists starting");
+                    progAchivesSite.ProcessArtists(toArtistPage, processOnlyOne);
+                }
+
+                //Process Albuns
+                if (doAlbuns)
+                {
+                    System.Console.WriteLine("Process Albuns starting");
+
+                    progAchivesSite.ProcessAlbums(toAlbumPage, processOnlyOne);
+                }
+
+                //Process Countries
+                if (doCountries)
+                {
+                    System.Console.WriteLine("Process Countries starting");
+                    progAchivesSite.ProcessCountries(firstDeleteAll: true);
+                }
+
+                dataBaseManager.Close();
+                dataBaseManager = null;
+                siteManager = null;
+            }
+            catch (Exception ex)
             {
-                System.Console.WriteLine("Process Albuns starting");
-            
-                progAchivesSite.ProcessAlbums(25584, onlyOne: true);
-                //progAchivesSite.ProcessAlbums(toAlbumPage, onlyOne: false);
+                System.Console.WriteLine("");
+                System.Console.WriteLine("ERROR:");
+                System.Console.WriteLine(ex.Message);
+                System.Console.WriteLine(ex.Source);
+                System.Console.WriteLine(ex.StackTrace);
+                return 1;
             }
-
-            //Process Countries
-            if (doCountries)
-            {
-                System.Console.WriteLine("Process Countries starting");
-                progAchivesSite.ProcessCountries(firstDeleteAll: true);
-            }
-
-            dataBaseManager.Close();
-            dataBaseManager = null;
-            siteManager = null;
 
             System.Console.WriteLine("Program finished");
 

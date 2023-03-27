@@ -1,8 +1,13 @@
 ﻿
 using System;
 
+#pragma warning disable CA1416 // Validate platform compatibility
+
 namespace Candal.Core
 {
+    /// <summary>
+    /// Manage "Microsoft Access" Database
+    /// </summary>
     public class DataBaseAccessManager : IDataBaseManager
     {
         private string _databaseName;
@@ -28,12 +33,8 @@ namespace Candal.Core
         public DataBaseAccessManager(string DatabaseName)
         {
             _databaseName = DatabaseName;
-            //_connectionString = "Provider=Microsoft.Jet.OLEDB.4.0;" + "Data source=" + _databaseName;
-            //_connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;" + "Data source=" + _databaseName;
-            //_connectionString = "Provider=Microsoft.Jet.OLEDB.15.0;" + "Data source=" + _databaseName;
+            //_connectionString = "Provider=Microsoft.Jet.OLEDB.12.0;" + "Data source=" + _databaseName;
             _connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;" + "Data source=" + _databaseName;
-            //_connectionString = "Driver={Microsoft Access Driver (*.mdb, *.accdb)}; Dbq=" + _databaseName;
-            //.accdb; Uid = Admin; Pwd =; ",
 
             _connection = new System.Data.OleDb.OleDbConnection(_connectionString);
             Open();
@@ -121,6 +122,7 @@ namespace Candal.Core
                 " VALUES (" +
                 artistInfo.ID.ToString() + "," +
                 "'" + artistInfo.Artist.Replace("'", "''") + "'," +
+                artistInfo.CountryId.ToString() + "," +
                 "'" + artistInfo.Country.Replace("'", "''") + "'," +
                 "'" + artistInfo.Style.Replace("'", "''") + "'," +
                 artistInfo.IsInactive.ToString() +
@@ -170,10 +172,11 @@ namespace Candal.Core
                  DataBaseTables.Artists.ToString() +
                  " SET " +
                  "Artist = '" + artistInfo.Artist.Replace("'", "''") + "', " +
+                 "Country_ID = " + artistInfo.CountryId + ", " +
                  "Country = '" + artistInfo.Country.Replace("'", "''") + "', " +
                  "Style = '" + artistInfo.Style.Replace("'", "''") + "', " + 
                  "Inactive = " + artistInfo.IsInactive.ToString() + " " +
-                 "WHERE Artist_ID = " + artistInfo.ID.ToString().Trim();
+                 "WHERE ID = " + artistInfo.ID.ToString().Trim();
 
             ExecuteNonQuery(sql);
         }
@@ -193,7 +196,7 @@ namespace Candal.Core
                 "YearN = '" + albumInfo.Year + "', " +
                 "Type = '" + albumInfo.Type + "', " +
                 "Inactive = " + albumInfo.IsInactive.ToString() + " " +
-                "WHERE Album_ID = " + albumInfo.ID.ToString();
+                "WHERE ID = " + albumInfo.ID.ToString();
 
             ExecuteNonQuery(sql);
         }
@@ -262,7 +265,48 @@ namespace Candal.Core
             ExecuteNonQuery(sql);
         }
 
-        ////////////////////////////////////////
+        //Select
+
+        public CountryInfo SelectCountryByName(string name)
+        {
+            CountryInfo countryInfo = null;
+
+            string sql = "SELECT * FROM " +
+                DataBaseTables.Countries.ToString() +
+                " WHERE UCASE(Country) = '" + name.ToUpper() + "'";
+
+            Open();
+
+            System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(sql, _connection);
+
+            System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
+
+            string temp = "";
+            if (dataReader.HasRows)
+            {
+                dataReader.Read();
+
+                int id;
+                string country;
+                bool isInactive;
+                
+                temp = dataReader["ID"].ToString();
+                System.Int32.TryParse(temp, out id);
+
+                country = dataReader["Country"].ToString();
+
+                temp = dataReader["Inactive"].ToString();
+                System.Boolean.TryParse(temp, out isInactive);
+
+                countryInfo = new CountryInfo(id, country, isInactive);
+            }
+            else
+                countryInfo = new CountryInfo(0);
+
+            dataReader.Close();
+
+            return countryInfo;
+        }
 
         private void ReadTable(string TableName, System.Action<System.Data.OleDb.OleDbDataReader> action)
         {
@@ -283,3 +327,4 @@ namespace Candal.Core
         }
     }
 }
+#pragma warning restore CA1416 // Validate platform compatibility

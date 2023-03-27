@@ -1,13 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
 	<OutputType>Exe</OutputType>
-    <TargetFramework>net6.0-windows10.0.22621.0</TargetFramework>
-	<SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>	  
-    <ImplicitUsings>disable</ImplicitUsings>
+	<TargetFramework>net6.0</TargetFramework>
+	<ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <StartupObject>Candal.Program</StartupObject>
-    <Platforms>AnyCPU;x86;x64</Platforms>
+    <AssemblyVersion>2.2.1.1</AssemblyVersion>
+	<FileVersion>2.2.1.1</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,6 +1,9 @@
 ﻿
 namespace Candal.Core
 {
+    /// <summary>
+    /// Album Info
+    /// </summary>
     public class AlbumInfo
     {
         public int ID { get; private set; }
