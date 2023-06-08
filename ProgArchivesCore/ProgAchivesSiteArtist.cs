@@ -8,10 +8,10 @@ namespace Candal.Core
     {
         private string _htmlData;
 
-        public ArtistInfo GetArtistInfoFromHtmlData(int page, string htmlData)
+        public ArtistInfo GetArtistInfoFromHtmlData(int page, string htmlData, string addedOn)
         {
             if (htmlData.Length == 0)
-                return new ArtistInfo(page);
+                return new ArtistInfo(page, addedOn);
 
             _htmlData = htmlData;
 
@@ -21,7 +21,7 @@ namespace Candal.Core
             string style = words[0];
             string country = words[1];
 
-            ArtistInfo artistInfo = new ArtistInfo(page, artist, country, style);
+            ArtistInfo artistInfo = new ArtistInfo(page, artist, country, style, addedOn);
 
             return artistInfo;
         }

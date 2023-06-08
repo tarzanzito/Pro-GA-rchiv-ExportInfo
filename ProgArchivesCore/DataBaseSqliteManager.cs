@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Data.SQLite;
 
 
 namespace Candal.Core
@@ -7,11 +8,11 @@ namespace Candal.Core
     /// <summary>
     /// Manage "Sqlite" Database
     /// </summary>
-    internal class DataBaseSqliteManager : IDataBaseManager
+    public class DataBaseSqliteManager : IDataBaseManager
     {
         private string _databaseName;
         private string _connectionString;
-        private System.Data.OleDb.OleDbConnection _connection = null;
+        private System.Data.SQLite.SQLiteConnection _connection = null;
 
         private bool IsValid
         {
@@ -32,12 +33,22 @@ namespace Candal.Core
         public DataBaseSqliteManager(string DatabaseName)
         {
             _databaseName = DatabaseName;
-            //_connectionString = "Provider=Microsoft.Jet.OLEDB.12.0;" + "Data source=" + _databaseName;
-            _connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;" + "Data source=" + _databaseName;
 
-            _connection = new System.Data.OleDb.OleDbConnection(_connectionString);
+            _connectionString = "Data source=" + _databaseName + "; Version=3";
+
+            _connection = new SQLiteConnection(_connectionString);
             Open();
+
+            //if (!File.Exists("./wrestlerdatabase.sqlite3"))
+            //{
+
+            //    SQLiteConnection.CreateFile("wrestlerdatabase.sqlite3");
+            //    Console.WriteLine("Wrestler Database file created");
+            //}
+
             Close();
+
+
         }
 
         public void Open()
@@ -63,13 +74,16 @@ namespace Candal.Core
             _connection.Close();
         }
 
-        private void ExecuteNonQuery(string Statement)
+        private void ExecuteNonQuery(string sql)
         {
             Open();
 
-            System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(Statement, _connection);
+            SQLiteCommand command = new SQLiteCommand(sql, _connection);
 
-            command.ExecuteNonQuery();
+            //mySQLiteCommand.Parameters.AddWithValue("@foodname", "Strawberry");
+            // mySQLiteCommand.Parameters.AddWithValue("@foodtype", "Fruit");
+            
+            int result = command.ExecuteNonQuery();
         }
 
         private int SelectMax(DataBaseTables dataBaseTable)
@@ -81,18 +95,20 @@ namespace Candal.Core
 
             sql = $"SELECT MAX(ID) AS MaxValue FROM {dataBaseTable.ToString()}";
 
-            System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(sql, _connection);
+            SQLiteCommand command = new SQLiteCommand(sql, _connection);
 
-            System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
+            SQLiteDataReader dataReader = command.ExecuteReader();
 
             string temp = "";
             if (dataReader.HasRows)
             {
-                dataReader.Read();
+                _ = dataReader.Read();
                 temp = dataReader["MaxValue"].ToString();
             }
 
-            System.Int32.TryParse(temp, out value);
+            _ = System.Int32.TryParse(temp, out value);
+
+            dataReader.Close();
 
             return value;
         }
@@ -123,7 +139,8 @@ namespace Candal.Core
                 "'" + artistInfo.Artist.Replace("'", "''") + "'," +
                 "'" + artistInfo.Country.Replace("'", "''") + "'," +
                 "'" + artistInfo.Style.Replace("'", "''") + "'," +
-                artistInfo.IsInactive.ToString() +
+                artistInfo.IsInactive.ToString() + "," +
+                "'" + artistInfo.AddedOn + "'" +
                 ")";
 
             ExecuteNonQuery(sql);
@@ -144,7 +161,9 @@ namespace Candal.Core
                 "'" + albumInfo.HtmlMusicians.Replace("'", "''") + "'," +
                 "'" + albumInfo.Year + "'," +
                 "'" + albumInfo.Type + "'," +
-                albumInfo.IsInactive.ToString() +
+                albumInfo.IsInactive.ToString() + "," +
+                "'" + albumInfo.AddedOn + "'" +
+
                 ")";
 
             ExecuteNonQuery(sql);
@@ -172,7 +191,8 @@ namespace Candal.Core
                  "Artist = '" + artistInfo.Artist.Replace("'", "''") + "', " +
                  "Country = '" + artistInfo.Country.Replace("'", "''") + "', " +
                  "Style = '" + artistInfo.Style.Replace("'", "''") + "', " +
-                 "Inactive = " + artistInfo.IsInactive.ToString() + " " +
+                 "Inactive = " + artistInfo.IsInactive.ToString() + ", " +
+                 "AddedOn = '" + artistInfo.AddedOn + "' " +
                  "WHERE Artist_ID = " + artistInfo.ID.ToString().Trim();
 
             ExecuteNonQuery(sql);
@@ -192,7 +212,8 @@ namespace Candal.Core
                 "Musicians = '" + albumInfo.HtmlMusicians.Replace("'", "''") + "', " +
                 "YearN = '" + albumInfo.Year + "', " +
                 "Type = '" + albumInfo.Type + "', " +
-                "Inactive = " + albumInfo.IsInactive.ToString() + " " +
+                "Inactive = " + albumInfo.IsInactive.ToString() + ", " +
+                "AddedOn = '" + albumInfo.AddedOn + "' " +
                 "WHERE Album_ID = " + albumInfo.ID.ToString();
 
             ExecuteNonQuery(sql);
@@ -266,7 +287,7 @@ namespace Candal.Core
 
         public CountryInfo SelectCountryByName(string name)
         {
-            CountryInfo countryInfo = null; ;
+            CountryInfo countryInfo = null;
 
             string sql = "SELECT * FROM " +
                 DataBaseTables.Countries.ToString() +
@@ -274,26 +295,26 @@ namespace Candal.Core
 
             Open();
 
-            System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(sql, _connection);
-
-            System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
+            SQLiteCommand command = new SQLiteCommand(sql, _connection);
+            
+            SQLiteDataReader dataReader = command.ExecuteReader();
 
             string temp = "";
             if (dataReader.HasRows)
             {
-                dataReader.Read();
+                _ = dataReader.Read();
 
                 int id;
                 string country;
                 bool isInactive;
 
                 temp = dataReader["ID"].ToString();
-                System.Int32.TryParse(temp, out id);
+                _ = System.Int32.TryParse(temp, out id);
 
                 country = dataReader["Country"].ToString();
 
                 temp = dataReader["Inactive"].ToString();
-                System.Boolean.TryParse(temp, out isInactive);
+                _ = System.Boolean.TryParse(temp, out isInactive);
 
                 countryInfo = new CountryInfo(id, country, isInactive);
             }
@@ -310,17 +331,17 @@ namespace Candal.Core
             string selectStatement = "SELECT * FROM " + TableName;
 
 
-            Open();
+            //Open();
 
-            System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(selectStatement, _connection);
+            //System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(selectStatement, _connection);
 
-            System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
+            //System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
 
-            while (dataReader.Read())
-            {
-                action(dataReader);
-            }
-            dataReader.Close();
+            //while (dataReader.Read())
+            //{
+            //    action(dataReader);
+            //}
+            //dataReader.Close();
         }
     }
 }

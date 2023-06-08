@@ -1,0 +1,3 @@
+sequencial:  43696 - Found : 43697 Hole found. Dif:  1
+sequencial:  47741 - Found : 47742 Hole found. Dif:  1
+sequencial:  57208 - Found : 57209 Hole found. Dif:  1

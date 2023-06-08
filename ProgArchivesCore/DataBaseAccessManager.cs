@@ -64,13 +64,13 @@ namespace Candal.Core
             _connection.Close();
         }
 
-        private void ExecuteNonQuery(string Statement)
+        private void ExecuteNonQuery(string sql)
         {
             Open();
 
-            System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(Statement, _connection);
+            System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(sql, _connection);
 
-            command.ExecuteNonQuery();
+            int result = command.ExecuteNonQuery();
         }
 
         private int SelectMax(DataBaseTables dataBaseTable)
@@ -89,11 +89,13 @@ namespace Candal.Core
             string temp = "";
             if (dataReader.HasRows)
             {
-                dataReader.Read();
+                _ = dataReader.Read();
                 temp = dataReader["MaxValue"].ToString();
             }
 
-            System.Int32.TryParse(temp, out value);
+            _ = System.Int32.TryParse(temp, out value);
+
+            dataReader.Close();
 
             return value;
         }
@@ -125,7 +127,8 @@ namespace Candal.Core
                 artistInfo.CountryId.ToString() + "," +
                 "'" + artistInfo.Country.Replace("'", "''") + "'," +
                 "'" + artistInfo.Style.Replace("'", "''") + "'," +
-                artistInfo.IsInactive.ToString() +
+                artistInfo.IsInactive.ToString() + "," +
+                "'" + artistInfo.AddedOn + "'" +
                 ")";
 
             ExecuteNonQuery(sql);
@@ -146,7 +149,8 @@ namespace Candal.Core
                 "'" + albumInfo.HtmlMusicians.Replace("'", "''") + "'," +
                 "'" + albumInfo.Year + "'," +
                 "'" + albumInfo.Type + "'," +
-                albumInfo.IsInactive.ToString() +
+                albumInfo.IsInactive.ToString() + "," +
+                 "'" + albumInfo.AddedOn + "'" +
                 ")";
 
             ExecuteNonQuery(sql);
@@ -175,7 +179,8 @@ namespace Candal.Core
                  "Country_ID = " + artistInfo.CountryId + ", " +
                  "Country = '" + artistInfo.Country.Replace("'", "''") + "', " +
                  "Style = '" + artistInfo.Style.Replace("'", "''") + "', " + 
-                 "Inactive = " + artistInfo.IsInactive.ToString() + " " +
+                 "Inactive = " + artistInfo.IsInactive.ToString() + ", " +
+                 "AddedOn = '" + artistInfo.AddedOn + "' " +
                  "WHERE ID = " + artistInfo.ID.ToString().Trim();
 
             ExecuteNonQuery(sql);
@@ -195,7 +200,8 @@ namespace Candal.Core
                 "Musicians = '" + albumInfo.HtmlMusicians.Replace("'", "''") + "', " +
                 "YearN = '" + albumInfo.Year + "', " +
                 "Type = '" + albumInfo.Type + "', " +
-                "Inactive = " + albumInfo.IsInactive.ToString() + " " +
+                "Inactive = " + albumInfo.IsInactive.ToString() + ", " +
+                "AddedOn = '" + albumInfo.AddedOn + "' " +
                 "WHERE ID = " + albumInfo.ID.ToString();
 
             ExecuteNonQuery(sql);
@@ -284,19 +290,19 @@ namespace Candal.Core
             string temp = "";
             if (dataReader.HasRows)
             {
-                dataReader.Read();
+                _ = dataReader.Read();
 
                 int id;
                 string country;
                 bool isInactive;
                 
                 temp = dataReader["ID"].ToString();
-                System.Int32.TryParse(temp, out id);
+                _ = System.Int32.TryParse(temp, out id);
 
                 country = dataReader["Country"].ToString();
 
                 temp = dataReader["Inactive"].ToString();
-                System.Boolean.TryParse(temp, out isInactive);
+                _ = System.Boolean.TryParse(temp, out isInactive);
 
                 countryInfo = new CountryInfo(id, country, isInactive);
             }

@@ -17,8 +17,9 @@ namespace Candal.Core
         public string Year { get; private set; }
         public string Type { get; private set; }
         public bool IsInactive { get; private set; }
+        public string AddedOn { get; private set; }
 
-        public AlbumInfo(int id)
+        public AlbumInfo(int id, string addedOn)
         {
             ID = id;
             Album = "";
@@ -31,10 +32,11 @@ namespace Candal.Core
             Year = "";
             Type = "";
             IsInactive = true;
+            AddedOn = addedOn;
         }
 
         public AlbumInfo(int id, string album, int artistId, string artist, string coverLink, string yearAndType,
-            string htmlTracks, string htmlMusicians, string year, string type)
+            string htmlTracks, string htmlMusicians, string year, string type, string addedOn)
         {
             ID = id;
             Album = album;
@@ -47,6 +49,7 @@ namespace Candal.Core
             Year = year;
             Type = type;
             IsInactive = (Album == "");
+            AddedOn = addedOn;
         } 
     }
 }

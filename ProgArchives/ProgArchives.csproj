@@ -5,13 +5,17 @@
 	<TargetFramework>net6.0</TargetFramework>
 	<ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <StartupObject>Candal.Program</StartupObject>
+    <StartupObject></StartupObject>
     <AssemblyVersion>2.2.1.1</AssemblyVersion>
 	<FileVersion>2.2.1.1</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ProgArchivesCore\ProgArchivesCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
 
 </Project>

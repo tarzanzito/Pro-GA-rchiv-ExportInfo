@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace Candal.Core
 {
     /// <summary>
@@ -11,11 +13,14 @@ namespace Candal.Core
     {
         private SiteManager _siteManager = null;
         private IDataBaseManager _dataBaseManager = null;
+        private string _dateNow = null;
 
         public ProgAchivesSiteManager(SiteManager siteManager, IDataBaseManager dataBaseManager)
         {
             _siteManager = siteManager;
             _dataBaseManager = dataBaseManager;
+
+            _dateNow = DateTime.Now.ToString("yyyy/MM/dd");
 
             //Open databases
             _dataBaseManager.Open();
@@ -40,7 +45,10 @@ namespace Candal.Core
 
                 string allHtmlData = _siteManager.GetAllHtmlData(uri);
 
-                ArtistInfo artistInfo = progAchivesSiteArtist.GetArtistInfoFromHtmlData(page, allHtmlData);
+                if (allHtmlData == null)
+                    throw new Exception($"{uri} return null");
+
+                ArtistInfo artistInfo = progAchivesSiteArtist.GetArtistInfoFromHtmlData(page, allHtmlData, _dateNow);
 
                 CountryInfo countryInfo  = _dataBaseManager.SelectCountryByName(artistInfo.Country);
                 artistInfo.SetCountryId(countryInfo.ID);
@@ -67,13 +75,17 @@ namespace Candal.Core
             for (int page = lastTreatedPageId; page <= toPage; page++)
             {
                 string uri = $"http://www.progarchives.com/album.asp?id={page}";
-                string htmlData = _siteManager.GetAllHtmlData(uri);
+                string allHtmlData = _siteManager.GetAllHtmlData(uri);
 
-                AlbumInfo albumInfo = progAchivesSiteAlbum.GetAlbumInfoFromHtmlData(page, htmlData);
+                if (allHtmlData == null)
+                    throw new Exception($"{uri} return null");
+
+                AlbumInfo albumInfo = progAchivesSiteAlbum.GetAlbumInfoFromHtmlData(page, allHtmlData, _dateNow);
 
                 _dataBaseManager.InsertAlbum(albumInfo);
 
                 System.Console.WriteLine($"Album:{page}");
+
             }
         }
 

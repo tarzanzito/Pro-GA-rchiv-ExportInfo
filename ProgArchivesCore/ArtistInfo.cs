@@ -12,8 +12,9 @@ namespace Candal.Core
         public string Country { get; private set; }
         public string Style { get; private set; }
         public bool IsInactive { get; private set; }
+        public string AddedOn { get; private set; }
 
-        public ArtistInfo(int id)
+        public ArtistInfo(int id, string addedOn)
         {
             ID = id;
             Artist = "";
@@ -21,9 +22,10 @@ namespace Candal.Core
             Country = "";
             Style = "";
             IsInactive = true;
+            AddedOn = addedOn;
         }
 
-        public ArtistInfo(int id, string artist, string country, string style)
+        public ArtistInfo(int id, string artist, string country, string style, string addedOn)
         {
             ID = id;
             Artist = artist;
@@ -31,10 +33,13 @@ namespace Candal.Core
             Country = country;
             Style = style;
             IsInactive = (artist == "");
+            AddedOn = addedOn;
         }
+
         public void SetCountryId(int countryId)
         {
             CountryId = countryId;
         }
+
     }
 }

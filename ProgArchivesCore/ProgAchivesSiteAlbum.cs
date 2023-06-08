@@ -4,14 +4,14 @@ namespace Candal.Core
     /// <summary>
     /// Retrive information from html progarchives "Albums" pages
     /// </summary>
-    internal class ProgAchivesSiteAlbum
+    internal class ProgGnosisSiteAlbum
     {
         private string _htmlData;
 
-        public AlbumInfo GetAlbumInfoFromHtmlData(int page, string htmlData)
+        public AlbumInfo GetAlbumInfoFromHtmlData(int page, string htmlData, string addedOn)
         {
             if (htmlData.Length == 0)
-                return new AlbumInfo(page);
+                return new AlbumInfo(page, addedOn);
 
             _htmlData = htmlData;
 
@@ -28,7 +28,7 @@ namespace Candal.Core
             string type = GetType(yearAndType);
 
             AlbumInfo albumInfo = new AlbumInfo(page, album, artistId, artist, coverLink, yearAndType, htmlTracks,
-               htmlMusicians, year, type);
+               htmlMusicians, year, type, addedOn);
 
             return albumInfo;
         }
@@ -60,7 +60,7 @@ namespace Candal.Core
             string[] words = tmp.Split(chrsW);
 
             int artistId;
-            System.Int32.TryParse(words[0], out artistId);
+            _ = System.Int32.TryParse(words[0], out artistId);
             words[0] = artistId.ToString();
             words[1] = words[1].Replace(";", "|");
 

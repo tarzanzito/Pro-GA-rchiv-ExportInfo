@@ -1,5 +1,0 @@
-Table Albuns changed to Albums
-Table
-Artists -> ID
-Albums -> ID
-Countries -> ID

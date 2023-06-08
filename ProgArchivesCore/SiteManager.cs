@@ -83,18 +83,30 @@ namespace Candal.Core
 
         public string GetAllHtmlData(string uri)
         {
- 
             string allPageData = "";
 
-            Task<string> task = _httpClient.GetStringAsync(uri);
-            Task.WhenAll(task);
-            allPageData = task.Result;
+            try
+            {
+               // string uri2 = "http://www.progarchives.com/artist.asp?id=12435";
+               // string uri2 = "https://www.proggnosis.com/Artist/10";
 
+                Task<string> task = _httpClient.GetStringAsync(uri);
+                //Task.WhenAll(task);
+                Task.WaitAll(task);
+            
+                string aaa = "";
 
-            //_webClient.Encoding = System.Text.Encoding.UTF8;
-            //byte[] byteArray = _webClient.DownloadData(Site);
-            //allPageData = System.Text.Encoding.Default.GetString(byteArray);
+                allPageData = task.Result;
 
+                //_webClient.Encoding = System.Text.Encoding.UTF8;
+                //byte[] byteArray = _webClient.DownloadData(Site);
+                //allPageData = System.Text.Encoding.Default.GetString(byteArray);
+
+            }
+            catch (Exception e)
+            {
+                //TODO send any information
+            }
 
             return allPageData;
         }
