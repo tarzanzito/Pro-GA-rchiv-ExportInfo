@@ -292,3 +292,5 @@ __pycache__/
 /ConsoleApp1
 /Resources/Olds
 /Resources/ProgArchives2010.mdb
+/Resources/ProgArchives2010.ldb
+/Resources/ProgArchives2010.sqlite
