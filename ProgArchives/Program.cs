@@ -1,16 +1,20 @@
 ﻿
-using Candal.Core;
-using System.IO;
 using System;
-using System.Configuration;
+using ProgArchivesCore.Config;
+using ProgArchivesCore.DataBaseManagers;
+using ProgArchivesCore.ProgArchivesSite;
+using ProgArchivesCore.SiteManagers;
+using ProgArchivesCore.Statics;
 
 namespace Candal
 {
     internal static class Program
     {
-        public static int Main2(string[] args)
+        public static int Main(string[] args)
         {
             System.Console.WriteLine("Program starting.");
+
+            ConfigurationFields configurationFields = CommonUtils.LoadConfiguration();
 
             //LAST RUN 2022-09-08
             //LAST RUN 2023-03-16
@@ -39,10 +43,10 @@ namespace Candal
             try
             {
                 //Open access database
-                IDataBaseManager dataBaseManager = DatabaseLink();
+                IDataBaseManager dataBaseManager = CommonUtils.DatabaseLink(configurationFields);
 
                 //open site manager
-                SiteManager siteManager = SiteManagerLink();
+                SiteManager siteManager = CommonUtils.SiteManagerLink(configurationFields);
 
 
                 //ProgGnosisSiteManager progGnosisSiteManager = new ProgGnosisSiteManager(siteManager, dataBaseManager);
@@ -64,7 +68,6 @@ namespace Candal
                 if (doAlbuns)
                 {
                     System.Console.WriteLine("Process Albuns starting");
-
                     progAchivesSite.ProcessAlbums(toAlbumPage, processOnlyOne);
                 }
 
@@ -94,172 +97,5 @@ namespace Candal
             return 0;
         }
 
-        private static SiteManager SiteManagerLink()
-        {
-            SiteManager siteManager = null;
-
-            string temp = ConfigurationManager.AppSettings["ProxyNeeded"];
-            bool hasProxy = System.Convert.ToBoolean(temp);
-
-            if (hasProxy)
-            {
-                string userID = ConfigurationManager.AppSettings["ProxyUserId"];
-                string userPassword = ConfigurationManager.AppSettings["ProxyUserPassword"];
-                string userDomain = ConfigurationManager.AppSettings["ProxyDomain"];
-                string address = ConfigurationManager.AppSettings["ProxyAddress"];
-                temp = ConfigurationManager.AppSettings["ProxyPort"];
-                int port = System.Convert.ToInt32(temp); ;
-
-                siteManager = new SiteManager(userID, userPassword, userDomain, address, port);
-            }
-            else
-                siteManager = new SiteManager();
-
-            return siteManager;
-        }
-
-        private static IDataBaseManager DatabaseLink()
-        {
-            string dbEngine = ConfigurationManager.AppSettings["DataBaseEngine"].ToUpper().Trim(); 
-
-            switch (dbEngine)
-            {
-                case "MSACCESS":
-                    return DatabaseMsAccess();
-                case "SQLITE":
-                    return DatabaseSqlite();
-                case "MYSQL":
-                    throw new Exception("AppSettings:[DataBaseEngine] not valid."); 
-                default:
-                    throw new Exception("AppSettings:[DataBaseEngine] not valid. (Options: 'MsAccess', 'Sqlite', 'MySql')");
-
-            }
-            
-//            string dataBaseUser = ConfigurationManager.AppSettings["DataBaseUser"];
-//            string dataBasePassword = ConfigurationManager.AppSettings["DataBasePassword"];
-
-
-//            //string dbName = "ProgArchives2010.mdb";
-//            string currentDirectory = Environment.CurrentDirectory;
-//            //string relName = @"\";
-
-//#if DEBUG
-//            currentDirectory = Directory.GetParent(currentDirectory).Parent.Parent.Parent.FullName;
-//            //relName = @"\Resources\";
-//#endif
-//            string fullNameDB = System.IO.Path.Combine(currentDirectory, dataBaseLocation);
-//            //string fullNameDB = currentDirectory + dataBaseLocation;
-
-//            System.Console.WriteLine($"DataBase Path:{fullNameDB}");
-
-//            //Open access database
-//            IDataBaseManager dataBaseManager = new DataBaseAccessManager(fullNameDB);
-//            //IDataBaseManager dataBaseManager = new DataBaseSqliteManager(fullNameDB);
-
-            //return dataBaseManager;
-        }
-
-        private static IDataBaseManager DatabaseMsAccess()
-        {
-            string dataBaseLocation = ConfigurationManager.AppSettings["DataBaseLocation"];
-
-            string currentDirectory = Environment.CurrentDirectory;
-
-#if DEBUG
-            currentDirectory = Directory.GetParent(currentDirectory).Parent.Parent.Parent.FullName;
-#endif
-            string fullNameDB = System.IO.Path.Join(currentDirectory, dataBaseLocation);
-
-            System.Console.WriteLine($"DataBase Path:{fullNameDB}");
-
-            //Open access database
-            IDataBaseManager dataBaseManager = new DataBaseAccessManager(fullNameDB);
-
-            return dataBaseManager;
-        }
-
-        private static IDataBaseManager DatabaseSqlite()
-        {
-            string dataBaseLocation = ConfigurationManager.AppSettings["DataBaseLocation"];
-
-            string currentDirectory = Environment.CurrentDirectory;
-
-#if DEBUG
-            currentDirectory = Directory.GetParent(currentDirectory).Parent.Parent.Parent.FullName;
-#endif
-            string fullNameDB = System.IO.Path.Join(currentDirectory, dataBaseLocation);
-
-            System.Console.WriteLine($"DataBase Path:{fullNameDB}");
-
-            //Open access database
-            IDataBaseManager dataBaseManager = new DataBaseSqliteManager(fullNameDB);
-
-            return dataBaseManager;
-        }
-
-
-        private  static void Buracos()
-        {
-            //Corri dentro do ACCESS a funcao xpto
-            //gravei num ficheiro txt
-
-            try
-            {
-                string currentDirectory = Environment.CurrentDirectory;
-#if DEBUG
-                currentDirectory = Directory.GetParent(currentDirectory).Parent.Parent.Parent.FullName;
-#endif
-                string fullNameFile = System.IO.Path.Join(currentDirectory, @"\Resources\Buracos.txt");
-
-                StreamReader file = new StreamReader(fullNameFile);
-
-                IDataBaseManager dataBaseManager = DatabaseLink();
-                SiteManager siteManager = SiteManagerLink();
-                ProgAchivesSiteManager progAchivesSite = new ProgAchivesSiteManager(siteManager, dataBaseManager);
-
-                int counter = 0;
-                string ln;
-                while ((ln = file.ReadLine()) != null)
-                {
-                    if (ln.Trim() == "")
-                        continue;
-
-                    int pos1 = ln.IndexOf(":");
-                    int pos2 = ln.IndexOf("-");
-                    string pageS = ln.Substring(pos1 + 1, pos2- pos1 - 1).Trim();
-
-                    pos1 = ln.LastIndexOf(":");
-                    string qtS = ln.Substring(pos1 + 1, ln.Length - pos1 - 1).Trim();
-
-                    int pageIni = System.Convert.ToInt32(pageS);
-                    int qt = System.Convert.ToInt32(qtS);
-
-                    Console.WriteLine(ln);
-                    int page; 
-                    for (int i = 0; i < qt; i++)
-                    {
-                        page = pageIni + i;
-                        counter++;
-                        //progAchivesSite.ProcessArtists(page, true);
-                        progAchivesSite.ProcessAlbums(page, true);
-                    }
-
-                }
-
-                file.Close();
-                dataBaseManager.Close();
-                dataBaseManager = null;
-                siteManager = null;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine("");
-                System.Console.WriteLine("ERROR:");
-                System.Console.WriteLine(ex.Message);
-                System.Console.WriteLine(ex.Source);
-                System.Console.WriteLine(ex.StackTrace);
-            }
-
-        }
     }
 }

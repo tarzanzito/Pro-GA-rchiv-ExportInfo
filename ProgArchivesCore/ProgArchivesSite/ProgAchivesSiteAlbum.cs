@@ -1,5 +1,6 @@
-﻿
-namespace Candal.Core
+﻿using ProgArchivesCore.Models;
+
+namespace ProgArchivesCore.ProgArchivesSite
 {
     /// <summary>
     /// Retrive information from html progarchives "Albums" pages
@@ -17,7 +18,7 @@ namespace Candal.Core
 
             string album = GetAlbum();
             string[] words = GetArtistAndArtistId();
-            int artistId = System.Int32.Parse(words[0]);
+            int artistId = int.Parse(words[0]);
             string artist = words[1];
             string coverLink = GetCoverLink();
             string yearAndType = GetYearAndType();
@@ -27,8 +28,10 @@ namespace Candal.Core
             string year = GetYear(yearAndType);
             string type = GetType(yearAndType);
 
+            bool isInactive = album == "";
+
             AlbumInfo albumInfo = new AlbumInfo(page, album, artistId, artist, coverLink, yearAndType, htmlTracks,
-               htmlMusicians, year, type, addedOn);
+               htmlMusicians, year, type, isInactive, addedOn);
 
             return albumInfo;
         }
@@ -60,7 +63,7 @@ namespace Candal.Core
             string[] words = tmp.Split(chrsW);
 
             int artistId;
-            _ = System.Int32.TryParse(words[0], out artistId);
+            _ = int.TryParse(words[0], out artistId);
             words[0] = artistId.ToString();
             words[1] = words[1].Replace(";", "|");
 
@@ -106,7 +109,7 @@ namespace Candal.Core
                 //confirm if year and type
                 rPos = yearAndType.IndexOf("released in");
             }
-            while ((rPos == -1) && (count < 5));
+            while (rPos == -1 && count < 5);
 
             return yearAndType;
         }

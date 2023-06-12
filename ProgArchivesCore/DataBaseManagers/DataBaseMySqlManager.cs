@@ -1,14 +1,13 @@
 ﻿
 using System;
+using ProgArchivesCore.Models;
 
-#pragma warning disable CA1416 // Validate platform compatibility
-
-namespace Candal.Core
+namespace ProgArchivesCore.DataBaseManagers
 {
     /// <summary>
-    /// Manage "Microsoft Access" Database
+    /// Manage "Sqlite" Database
     /// </summary>
-    public class DataBaseAccessManager : IDataBaseManager
+    internal class DataBaseMySqlManager : IDataBaseManager
     {
         private string _databaseName;
         private string _connectionString;
@@ -18,7 +17,7 @@ namespace Candal.Core
         {
             get
             {
-                return (_connection != null);
+                return _connection != null;
             }
         }
 
@@ -30,7 +29,7 @@ namespace Candal.Core
             }
         }
 
-        public DataBaseAccessManager(string DatabaseName)
+        public DataBaseMySqlManager(string DatabaseName)
         {
             _databaseName = DatabaseName;
             //_connectionString = "Provider=Microsoft.Jet.OLEDB.12.0;" + "Data source=" + _databaseName;
@@ -64,13 +63,13 @@ namespace Candal.Core
             _connection.Close();
         }
 
-        private void ExecuteNonQuery(string sql)
+        private void ExecuteNonQuery(string Statement)
         {
             Open();
 
-            System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(sql, _connection);
+            System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(Statement, _connection);
 
-            int result = command.ExecuteNonQuery();
+            _ = command.ExecuteNonQuery();
         }
 
         private int SelectMax(DataBaseTables dataBaseTable)
@@ -93,9 +92,7 @@ namespace Candal.Core
                 temp = dataReader["MaxValue"].ToString();
             }
 
-            _ = System.Int32.TryParse(temp, out value);
-
-            dataReader.Close();
+            _ = int.TryParse(temp, out value);
 
             return value;
         }
@@ -124,7 +121,6 @@ namespace Candal.Core
                 " VALUES (" +
                 artistInfo.ID.ToString() + "," +
                 "'" + artistInfo.Artist.Replace("'", "''") + "'," +
-                artistInfo.CountryId.ToString() + "," +
                 "'" + artistInfo.Country.Replace("'", "''") + "'," +
                 "'" + artistInfo.Style.Replace("'", "''") + "'," +
                 artistInfo.IsInactive.ToString() + "," +
@@ -150,7 +146,7 @@ namespace Candal.Core
                 "'" + albumInfo.Year + "'," +
                 "'" + albumInfo.Type + "'," +
                 albumInfo.IsInactive.ToString() + "," +
-                 "'" + albumInfo.AddedOn + "'" +
+                "'" + albumInfo.AddedOn + "'" +
                 ")";
 
             ExecuteNonQuery(sql);
@@ -176,12 +172,11 @@ namespace Candal.Core
                  DataBaseTables.Artists.ToString() +
                  " SET " +
                  "Artist = '" + artistInfo.Artist.Replace("'", "''") + "', " +
-                 "Country_ID = " + artistInfo.CountryId + ", " +
                  "Country = '" + artistInfo.Country.Replace("'", "''") + "', " +
-                 "Style = '" + artistInfo.Style.Replace("'", "''") + "', " + 
+                 "Style = '" + artistInfo.Style.Replace("'", "''") + "', " +
                  "Inactive = " + artistInfo.IsInactive.ToString() + ", " +
                  "AddedOn = '" + artistInfo.AddedOn + "' " +
-                 "WHERE ID = " + artistInfo.ID.ToString().Trim();
+                 "WHERE Artist_ID = " + artistInfo.ID.ToString().Trim();
 
             ExecuteNonQuery(sql);
         }
@@ -202,7 +197,7 @@ namespace Candal.Core
                 "Type = '" + albumInfo.Type + "', " +
                 "Inactive = " + albumInfo.IsInactive.ToString() + ", " +
                 "AddedOn = '" + albumInfo.AddedOn + "' " +
-                "WHERE ID = " + albumInfo.ID.ToString();
+                "WHERE Album_ID = " + albumInfo.ID.ToString();
 
             ExecuteNonQuery(sql);
         }
@@ -275,11 +270,11 @@ namespace Candal.Core
 
         public CountryInfo SelectCountryByName(string name)
         {
-            CountryInfo countryInfo = null;
+            CountryInfo countryInfo = null; ;
 
             string sql = "SELECT * FROM " +
                 DataBaseTables.Countries.ToString() +
-                " WHERE UCASE(Country) = '" + name.ToUpper() + "'";
+                " WHERE UPPER(Country) = '" + name.ToUpper() + "'";
 
             Open();
 
@@ -295,14 +290,14 @@ namespace Candal.Core
                 int id;
                 string country;
                 bool isInactive;
-                
+
                 temp = dataReader["ID"].ToString();
-                _ = System.Int32.TryParse(temp, out id);
+                _ = int.TryParse(temp, out id);
 
                 country = dataReader["Country"].ToString();
 
                 temp = dataReader["Inactive"].ToString();
-                _ = System.Boolean.TryParse(temp, out isInactive);
+                _ = bool.TryParse(temp, out isInactive);
 
                 countryInfo = new CountryInfo(id, country, isInactive);
             }
@@ -314,23 +309,99 @@ namespace Candal.Core
             return countryInfo;
         }
 
-        private void ReadTable(string TableName, System.Action<System.Data.OleDb.OleDbDataReader> action)
+        private void ReadTable(string TableName, Action<System.Data.OleDb.OleDbDataReader> action)
         {
             string selectStatement = "SELECT * FROM " + TableName;
 
 
-                Open();
+            Open();
 
-                System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(selectStatement, _connection);
+            System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(selectStatement, _connection);
 
-                System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
+            System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
 
-                while (dataReader.Read())
-                {
-                    action(dataReader);
-                }
-                dataReader.Close();
+            while (dataReader.Read())
+            {
+                action(dataReader);
+            }
+            dataReader.Close();
+        }
+
+        public ArtistInfo SelectArtistById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public AlbumInfo SelectAlbumById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ExistsArtist(ArtistInfo artistInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ExistsAlbum(AlbumInfo albumInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ExistsCountry(CountryInfo countryInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public CountryInfo SelectCountryById(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }
-#pragma warning restore CA1416 // Validate platform compatibility
+
+
+
+//CREATE TABLE Countries(
+//    ID INTEGER PRIMARY KEY,
+//    Country TEXT,
+//    Inactive INTEGER
+//);
+
+//CREATE UNIQUE INDEX Countries_Country_Index ON Countries(
+//    Country,
+//    ID
+//);
+
+
+//CREATE TABLE Artists(
+//    ID INTEGER PRIMARY KEY,
+//    Artist TEXT,
+//    Country TEXT,
+//    Style TEXT,
+//    Inactive INTEGER
+//);
+
+
+//CREATE UNIQUE INDEX Artists_Artist_Index ON Artists(
+//    Artist,
+//    ID
+//);
+
+//CREATE TABLE Albums(
+//    ID INTEGER PRIMARY KEY,
+//    Album TEXT,
+//    Artist_ID INTEGER,
+//    Artist TEXT,
+//    Cover TEXT,
+//    YearAndType TEXT,
+//    Tracks TEXT,
+//    Musicians TEXT,
+//    YearN STRING,
+//    Type TEXT,
+//    Inactive INTEGER
+//);
+
+//CREATE UNIQUE INDEX Albums_Album_Index ON Albums(
+//    Album,
+//    ID
+//);

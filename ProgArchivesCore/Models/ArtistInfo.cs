@@ -1,5 +1,4 @@
-﻿
-namespace Candal.Core
+﻿namespace ProgArchivesCore.Models
 {
     /// <summary>
     /// Artist Info
@@ -25,14 +24,14 @@ namespace Candal.Core
             AddedOn = addedOn;
         }
 
-        public ArtistInfo(int id, string artist, string country, string style, string addedOn)
+        public ArtistInfo(int id, string artist, int countryId, string country, string style, bool isInactive, string addedOn)
         {
             ID = id;
             Artist = artist;
-            //CountryId = countryId;
+            CountryId = countryId;
             Country = country;
             Style = style;
-            IsInactive = (artist == "");
+            IsInactive = isInactive;
             AddedOn = addedOn;
         }
 

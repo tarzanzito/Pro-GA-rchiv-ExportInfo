@@ -1,5 +1,6 @@
-﻿
-namespace Candal.Core
+﻿using ProgArchivesCore.Models;
+
+namespace ProgArchivesCore.ProgArchivesSite
 {
     /// <summary>
     /// Retrive information from html progarchives "Artists" pages
@@ -21,7 +22,9 @@ namespace Candal.Core
             string style = words[0];
             string country = words[1];
 
-            ArtistInfo artistInfo = new ArtistInfo(page, artist, country, style, addedOn);
+            bool isInactive = artist == "";
+
+            ArtistInfo artistInfo = new ArtistInfo(page, artist, 0, country, style, isInactive, addedOn);
 
             return artistInfo;
         }

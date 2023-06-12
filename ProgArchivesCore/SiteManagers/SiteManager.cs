@@ -1,29 +1,30 @@
 ﻿
+using ProgArchivesCore.Config;
 using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Candal.Core
+namespace ProgArchivesCore.SiteManagers
 {
     /// <summary>
     /// Generic to get all html from site
     /// </summary>
     public class SiteManager
     {
-        private string _userName;
-        private string _userPassword;
-        private string _userDomain;
+        private string _proxyUserId;
+        private string _proxyUserPassword;
+        private string _proxyUserDomain;
         private string _proxyAddress;
         private int _proxyPort;
         private bool _useProxy;
-        private System.Net.Http.HttpClient _httpClient = null;
+        private HttpClient _httpClient = null;
 
         public SiteManager()
         {
-            _userName = "";
-            _userPassword = "";
-            _userDomain = "";
+            _proxyUserId = "";
+            _proxyUserPassword = "";
+            _proxyUserDomain = "";
             _proxyAddress = "";
             _proxyPort = 0;
             _useProxy = false;
@@ -31,14 +32,14 @@ namespace Candal.Core
             CreateClient();
         }
 
-        public SiteManager(string UserName, string UserPassword, string UserDomain, string ProxyAddress, int ProxyPort)
+        public SiteManager(ConfigurationFields configurationFields)
         {
-            _userName = UserName;
-            _userPassword = UserPassword;
-            _userDomain = UserDomain;
-            _proxyAddress = ProxyAddress;
-            _proxyPort = ProxyPort;
-            _useProxy = true;
+            _proxyUserId = configurationFields.ProxyUserId;
+            _proxyUserPassword = configurationFields.ProxyUserPassword;
+            _proxyUserDomain = configurationFields.ProxyUserDomain;
+            _proxyAddress = configurationFields.ProxyAddress;
+            _proxyPort = configurationFields.ProxyPort;
+            _useProxy = configurationFields.HasProxy;
 
             CreateClient();
         }
@@ -53,7 +54,7 @@ namespace Candal.Core
         {
             if (_useProxy) //TODO: Confirm //not tested yet
             {
-                ICredentials networkCredential = new System.Net.NetworkCredential(_userName, _userPassword, _userDomain);
+                ICredentials networkCredential = new NetworkCredential(_proxyUserId, _proxyUserPassword, _proxyUserDomain);
 
                 string address = $"{_proxyAddress}:{_proxyPort.ToString()}";
 
@@ -87,13 +88,13 @@ namespace Candal.Core
 
             try
             {
-               // string uri2 = "http://www.progarchives.com/artist.asp?id=12435";
-               // string uri2 = "https://www.proggnosis.com/Artist/10";
+                // string uri2 = "http://www.progarchives.com/artist.asp?id=12435";
+                // string uri2 = "https://www.proggnosis.com/Artist/10";
 
                 Task<string> task = _httpClient.GetStringAsync(uri);
                 //Task.WhenAll(task);
                 Task.WaitAll(task);
-            
+
                 string aaa = "";
 
                 allPageData = task.Result;

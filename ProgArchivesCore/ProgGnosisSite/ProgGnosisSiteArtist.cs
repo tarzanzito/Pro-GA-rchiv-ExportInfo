@@ -1,7 +1,8 @@
 ﻿
 using System;
+using ProgArchivesCore.Models;
 
-namespace Candal.Core
+namespace ProgArchivesCore.ProgGnosisSite
 {
     /// <summary>
     /// Retrive information from html proggnosis "Artists" pages
@@ -23,7 +24,9 @@ namespace Candal.Core
             string country = GetCountry();
             string style = GetStyle();
 
-            ArtistInfo artistInfo = new ArtistInfo(page, artist, country, style, addedOn);
+            bool isInactive = artist == "";
+
+            ArtistInfo artistInfo = new ArtistInfo(page, artist, 0, country, style, isInactive, addedOn);
 
             return artistInfo;
         }

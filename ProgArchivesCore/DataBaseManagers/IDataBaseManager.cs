@@ -1,5 +1,6 @@
-﻿
-namespace Candal.Core
+﻿using ProgArchivesCore.Models;
+
+namespace ProgArchivesCore.DataBaseManagers
 {
     /// <summary>
     /// Define DataBase Actions
@@ -35,6 +36,19 @@ namespace Candal.Core
         void DeleteAllCountries();
 
         //Select
-        CountryInfo SelectCountryByName(string name);
+        ArtistInfo SelectArtistById(int id);
+        //ArtistInfo SelectArtistByName(string artist);
+
+        AlbumInfo SelectAlbumById(int id);
+        //AlbumInfo SelectAlbumByName(string album);
+        //AlbumInfo[] SelectAlbumsByArtistId(int ArtistId);
+
+        CountryInfo SelectCountryById(int id);
+        CountryInfo SelectCountryByName(string country);
+
+        //Exists
+        bool ExistsArtist(ArtistInfo artistInfo);
+        bool ExistsAlbum(AlbumInfo albumInfo);
+        bool ExistsCountry(CountryInfo countryInfo);
     }
 }

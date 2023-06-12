@@ -1,23 +1,24 @@
 ﻿
 using System;
+using System.Data.SQLite;
+using ProgArchivesCore.Models;
 
-
-namespace Candal.Core
+namespace ProgArchivesCore.DataBaseManagers
 {
     /// <summary>
     /// Manage "Sqlite" Database
     /// </summary>
-    internal class DataBaseMySqlManager : IDataBaseManager
+    public class DataBaseSqliteManager : IDataBaseManager
     {
         private string _databaseName;
         private string _connectionString;
-        private System.Data.OleDb.OleDbConnection _connection = null;
+        private SQLiteConnection _connection = null;
 
         private bool IsValid
         {
             get
             {
-                return (_connection != null);
+                return _connection != null;
             }
         }
 
@@ -29,15 +30,25 @@ namespace Candal.Core
             }
         }
 
-        public DataBaseMySqlManager(string DatabaseName)
+        public DataBaseSqliteManager(string DatabaseName)
         {
             _databaseName = DatabaseName;
-            //_connectionString = "Provider=Microsoft.Jet.OLEDB.12.0;" + "Data source=" + _databaseName;
-            _connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;" + "Data source=" + _databaseName;
 
-            _connection = new System.Data.OleDb.OleDbConnection(_connectionString);
+            _connectionString = "Data source=" + _databaseName + "; Version=3";
+
+            _connection = new SQLiteConnection(_connectionString);
             Open();
+
+            //if (!File.Exists("./wrestlerdatabase.sqlite3"))
+            //{
+
+            //    SQLiteConnection.CreateFile("wrestlerdatabase.sqlite3");
+            //    Console.WriteLine("Wrestler Database file created");
+            //}
+
             Close();
+
+
         }
 
         public void Open()
@@ -63,13 +74,16 @@ namespace Candal.Core
             _connection.Close();
         }
 
-        private void ExecuteNonQuery(string Statement)
+        private void ExecuteNonQuery(string sql)
         {
             Open();
 
-            System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(Statement, _connection);
+            SQLiteCommand command = new SQLiteCommand(sql, _connection);
 
-            _ = command.ExecuteNonQuery();
+            //mySQLiteCommand.Parameters.AddWithValue("@foodname", "Strawberry");
+            // mySQLiteCommand.Parameters.AddWithValue("@foodtype", "Fruit");
+
+            int result = command.ExecuteNonQuery();
         }
 
         private int SelectMax(DataBaseTables dataBaseTable)
@@ -81,9 +95,9 @@ namespace Candal.Core
 
             sql = $"SELECT MAX(ID) AS MaxValue FROM {dataBaseTable.ToString()}";
 
-            System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(sql, _connection);
+            SQLiteCommand command = new SQLiteCommand(sql, _connection);
 
-            System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
+            SQLiteDataReader dataReader = command.ExecuteReader();
 
             string temp = "";
             if (dataReader.HasRows)
@@ -92,7 +106,9 @@ namespace Candal.Core
                 temp = dataReader["MaxValue"].ToString();
             }
 
-            _ = System.Int32.TryParse(temp, out value);
+            _ = int.TryParse(temp, out value);
+
+            dataReader.Close();
 
             return value;
         }
@@ -146,7 +162,8 @@ namespace Candal.Core
                 "'" + albumInfo.Year + "'," +
                 "'" + albumInfo.Type + "'," +
                 albumInfo.IsInactive.ToString() + "," +
-                "'" + albumInfo.AddedOn + "'" + 
+                "'" + albumInfo.AddedOn + "'" +
+
                 ")";
 
             ExecuteNonQuery(sql);
@@ -270,7 +287,7 @@ namespace Candal.Core
 
         public CountryInfo SelectCountryByName(string name)
         {
-            CountryInfo countryInfo = null; ;
+            CountryInfo countryInfo = null;
 
             string sql = "SELECT * FROM " +
                 DataBaseTables.Countries.ToString() +
@@ -278,9 +295,9 @@ namespace Candal.Core
 
             Open();
 
-            System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(sql, _connection);
+            SQLiteCommand command = new SQLiteCommand(sql, _connection);
 
-            System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
+            SQLiteDataReader dataReader = command.ExecuteReader();
 
             string temp = "";
             if (dataReader.HasRows)
@@ -292,12 +309,12 @@ namespace Candal.Core
                 bool isInactive;
 
                 temp = dataReader["ID"].ToString();
-                _ = System.Int32.TryParse(temp, out id);
+                _ = int.TryParse(temp, out id);
 
                 country = dataReader["Country"].ToString();
 
                 temp = dataReader["Inactive"].ToString();
-                _ = System.Boolean.TryParse(temp, out isInactive);
+                _ = bool.TryParse(temp, out isInactive);
 
                 countryInfo = new CountryInfo(id, country, isInactive);
             }
@@ -309,22 +326,52 @@ namespace Candal.Core
             return countryInfo;
         }
 
-        private void ReadTable(string TableName, System.Action<System.Data.OleDb.OleDbDataReader> action)
+        private void ReadTable(string TableName, Action<System.Data.OleDb.OleDbDataReader> action)
         {
             string selectStatement = "SELECT * FROM " + TableName;
 
 
-            Open();
+            //Open();
 
-            System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(selectStatement, _connection);
+            //System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(selectStatement, _connection);
 
-            System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
+            //System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
 
-            while (dataReader.Read())
-            {
-                action(dataReader);
-            }
-            dataReader.Close();
+            //while (dataReader.Read())
+            //{
+            //    action(dataReader);
+            //}
+            //dataReader.Close();
+        }
+
+        public ArtistInfo SelectArtistById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public AlbumInfo SelectAlbumById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ExistsArtist(ArtistInfo artistInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ExistsAlbum(AlbumInfo albumInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ExistsCountry(CountryInfo countryInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public CountryInfo SelectCountryById(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

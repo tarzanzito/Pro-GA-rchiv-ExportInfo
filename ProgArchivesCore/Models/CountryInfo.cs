@@ -1,5 +1,4 @@
-﻿
-namespace Candal.Core
+﻿namespace ProgArchivesCore.Models
 {
     /// <summary>
     /// Country Info
@@ -21,7 +20,7 @@ namespace Candal.Core
         {
             ID = id;
             Country = country;
-            IsInactive = (Country == "");
+            IsInactive = Country == "";
         }
 
         public CountryInfo(int id, string country, bool isInactive)

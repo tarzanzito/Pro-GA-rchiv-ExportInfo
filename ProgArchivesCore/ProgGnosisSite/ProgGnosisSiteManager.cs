@@ -1,7 +1,11 @@
 ﻿
 using System;
+using ProgArchivesCore.DataBaseManagers;
+using ProgArchivesCore.Models;
+using ProgArchivesCore.ProgArchivesSite;
+using ProgArchivesCore.SiteManagers;
 
-namespace Candal.Core
+namespace ProgArchivesCore.ProgGnosisSite
 {
     /// <summary>
     /// Manage pages from progarchives site and save info in an DB
@@ -30,7 +34,7 @@ namespace Candal.Core
         {
             int lastTreatedPageId;
             //if (onlyOne)
-                lastTreatedPageId = toPage;
+            lastTreatedPageId = toPage;
             //else
             //{
             //    lastTreatedPageId = _dataBaseManager.GetMaxArtist();
@@ -53,7 +57,7 @@ namespace Candal.Core
 
                 //_dataBaseManager.InsertArtist(artistInfo);
 
-                System.Console.WriteLine($"Artist:{page}");
+                Console.WriteLine($"Artist:{page}");
             }
         }
 
@@ -62,7 +66,7 @@ namespace Candal.Core
         {
             int lastTreatedPageId;
             //if (onlyOne)
-                lastTreatedPageId = toPage;
+            lastTreatedPageId = toPage;
             //else
             //{
             //    lastTreatedPageId = _dataBaseManager.GetMaxAlbum();
@@ -78,9 +82,9 @@ namespace Candal.Core
 
                 AlbumInfo albumInfo = progGnosisSiteAlbum.GetAlbumInfoFromHtmlData(page, htmlData, _dateNow);
 
-               // _dataBaseManager.InsertAlbum(albumInfo);
+                // _dataBaseManager.InsertAlbum(albumInfo);
 
-                System.Console.WriteLine($"Album:{page}");
+                Console.WriteLine($"Album:{page}");
             }
         }
 
@@ -99,10 +103,10 @@ namespace Candal.Core
                 string htmlData = _siteManager.GetAllHtmlData($"http://www.progarchives.com/Bands-country.asp?country={page}");
 
                 CountryInfo countryInfo = progAchivesSiteCountry.GetCountryNameFromHtmlData(page, htmlData);
-                
+
                 _dataBaseManager.InsertCountry(countryInfo);
-                
-                System.Console.WriteLine($"Country:{page}");
+
+                Console.WriteLine($"Country:{page}");
             }
         }
     }

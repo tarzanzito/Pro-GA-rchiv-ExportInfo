@@ -1,24 +1,26 @@
 ﻿
 using System;
-using System.Data.SQLite;
+using System.Data.OleDb;
+using ProgArchivesCore.Models;
 
+#pragma warning disable CA1416 // Validate platform compatibility
 
-namespace Candal.Core
+namespace ProgArchivesCore.DataBaseManagers
 {
     /// <summary>
-    /// Manage "Sqlite" Database
+    /// Manage "Microsoft Access" Database
     /// </summary>
-    public class DataBaseSqliteManager : IDataBaseManager
+    public class DataBaseAccessManager : IDataBaseManager
     {
         private string _databaseName;
         private string _connectionString;
-        private System.Data.SQLite.SQLiteConnection _connection = null;
+        private OleDbConnection _connection = null;
 
         private bool IsValid
         {
             get
             {
-                return (_connection != null);
+                return _connection != null;
             }
         }
 
@@ -30,25 +32,15 @@ namespace Candal.Core
             }
         }
 
-        public DataBaseSqliteManager(string DatabaseName)
+        public DataBaseAccessManager(string DatabaseName)
         {
             _databaseName = DatabaseName;
+            //_connectionString = "Provider=Microsoft.Jet.OLEDB.12.0;" + "Data source=" + _databaseName;
+            _connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;" + "Data source=" + _databaseName;
 
-            _connectionString = "Data source=" + _databaseName + "; Version=3";
-
-            _connection = new SQLiteConnection(_connectionString);
+            _connection = new OleDbConnection(_connectionString);
             Open();
-
-            //if (!File.Exists("./wrestlerdatabase.sqlite3"))
-            //{
-
-            //    SQLiteConnection.CreateFile("wrestlerdatabase.sqlite3");
-            //    Console.WriteLine("Wrestler Database file created");
-            //}
-
             Close();
-
-
         }
 
         public void Open()
@@ -78,12 +70,29 @@ namespace Candal.Core
         {
             Open();
 
-            SQLiteCommand command = new SQLiteCommand(sql, _connection);
+            OleDbCommand command = new OleDbCommand(sql, _connection);
 
-            //mySQLiteCommand.Parameters.AddWithValue("@foodname", "Strawberry");
-            // mySQLiteCommand.Parameters.AddWithValue("@foodtype", "Fruit");
-            
             int result = command.ExecuteNonQuery();
+        }
+
+        private OleDbDataReader ExecuteReader(string sql)
+        {
+            Open();
+
+            OleDbCommand command = new OleDbCommand(sql, _connection);
+
+            return command.ExecuteReader();
+        }
+
+
+        private string GetDbField(OleDbDataReader dataReader, string field)
+        {
+            string value = null;
+
+            if (dataReader[field] != null)
+                value = dataReader[field].ToString().Trim();
+
+            return value;
         }
 
         private int SelectMax(DataBaseTables dataBaseTable)
@@ -95,9 +104,9 @@ namespace Candal.Core
 
             sql = $"SELECT MAX(ID) AS MaxValue FROM {dataBaseTable.ToString()}";
 
-            SQLiteCommand command = new SQLiteCommand(sql, _connection);
+            OleDbCommand command = new OleDbCommand(sql, _connection);
 
-            SQLiteDataReader dataReader = command.ExecuteReader();
+            OleDbDataReader dataReader = command.ExecuteReader();
 
             string temp = "";
             if (dataReader.HasRows)
@@ -106,7 +115,7 @@ namespace Candal.Core
                 temp = dataReader["MaxValue"].ToString();
             }
 
-            _ = System.Int32.TryParse(temp, out value);
+            _ = int.TryParse(temp, out value);
 
             dataReader.Close();
 
@@ -137,6 +146,7 @@ namespace Candal.Core
                 " VALUES (" +
                 artistInfo.ID.ToString() + "," +
                 "'" + artistInfo.Artist.Replace("'", "''") + "'," +
+                artistInfo.CountryId.ToString() + "," +
                 "'" + artistInfo.Country.Replace("'", "''") + "'," +
                 "'" + artistInfo.Style.Replace("'", "''") + "'," +
                 artistInfo.IsInactive.ToString() + "," +
@@ -162,8 +172,7 @@ namespace Candal.Core
                 "'" + albumInfo.Year + "'," +
                 "'" + albumInfo.Type + "'," +
                 albumInfo.IsInactive.ToString() + "," +
-                "'" + albumInfo.AddedOn + "'" +
-
+                 "'" + albumInfo.AddedOn + "'" +
                 ")";
 
             ExecuteNonQuery(sql);
@@ -189,11 +198,12 @@ namespace Candal.Core
                  DataBaseTables.Artists.ToString() +
                  " SET " +
                  "Artist = '" + artistInfo.Artist.Replace("'", "''") + "', " +
+                 "Country_ID = " + artistInfo.CountryId + ", " +
                  "Country = '" + artistInfo.Country.Replace("'", "''") + "', " +
                  "Style = '" + artistInfo.Style.Replace("'", "''") + "', " +
                  "Inactive = " + artistInfo.IsInactive.ToString() + ", " +
                  "AddedOn = '" + artistInfo.AddedOn + "' " +
-                 "WHERE Artist_ID = " + artistInfo.ID.ToString().Trim();
+                 "WHERE ID = " + artistInfo.ID.ToString().Trim();
 
             ExecuteNonQuery(sql);
         }
@@ -214,7 +224,7 @@ namespace Candal.Core
                 "Type = '" + albumInfo.Type + "', " +
                 "Inactive = " + albumInfo.IsInactive.ToString() + ", " +
                 "AddedOn = '" + albumInfo.AddedOn + "' " +
-                "WHERE Album_ID = " + albumInfo.ID.ToString();
+                "WHERE ID = " + albumInfo.ID.ToString();
 
             ExecuteNonQuery(sql);
         }
@@ -285,110 +295,185 @@ namespace Candal.Core
 
         //Select
 
-        public CountryInfo SelectCountryByName(string name)
+        public ArtistInfo SelectArtistById(int id)
         {
-            CountryInfo countryInfo = null;
+            ArtistInfo artistInfo = null;
 
-            string sql = "SELECT * FROM " +
-                DataBaseTables.Countries.ToString() +
-                " WHERE UPPER(Country) = '" + name.ToUpper() + "'";
+            string sql = $"SELECT * FROM {DataBaseTables.Artists} WHERE id = {id}";
 
-            Open();
+            OleDbDataReader dataReader = ExecuteReader(sql);
 
-            SQLiteCommand command = new SQLiteCommand(sql, _connection);
-            
-            SQLiteDataReader dataReader = command.ExecuteReader();
+            int idF;
+            string artistF;
+            int countryIdF;
+            string countryF;
+            string styleF;
+            bool isInactiveF;
+            string addedOnF;
 
-            string temp = "";
             if (dataReader.HasRows)
             {
                 _ = dataReader.Read();
 
-                int id;
-                string country;
-                bool isInactive;
+                idF = Convert.ToInt32(GetDbField(dataReader, "ID"));
+                artistF = GetDbField(dataReader, "Artist");
+                countryIdF = Convert.ToInt32(GetDbField(dataReader, "Country_ID"));
+                countryF = GetDbField(dataReader, "Country");
+                styleF = GetDbField(dataReader, "Style");
+                isInactiveF = Convert.ToBoolean(GetDbField(dataReader, "Inactive"));
+                addedOnF = GetDbField(dataReader, "AddedOn");
 
-                temp = dataReader["ID"].ToString();
-                _ = System.Int32.TryParse(temp, out id);
-
-                country = dataReader["Country"].ToString();
-
-                temp = dataReader["Inactive"].ToString();
-                _ = System.Boolean.TryParse(temp, out isInactive);
-
-                countryInfo = new CountryInfo(id, country, isInactive);
+                artistInfo = new ArtistInfo(idF, artistF, countryIdF, countryF, styleF, isInactiveF, addedOnF);
             }
-            else
-                countryInfo = new CountryInfo(0);
+
+            dataReader.Close();
+
+            return artistInfo;
+        }
+
+        public AlbumInfo SelectAlbumById(int id)
+        {
+            AlbumInfo albumInfo = null;
+
+            string sql = $"SELECT * FROM {DataBaseTables.Albums} WHERE id = {id}";
+
+            OleDbDataReader dataReader = ExecuteReader(sql);
+
+            int idF;
+            string albumF;
+            int artistIdF;
+            string artistF;
+            string coverLinkF;
+            string YearAndTypeF;
+            string HtmlTracksF;
+            string HtmlMusiciansF;
+            string yearF;
+            string typeF;
+            bool isInactiveF;
+            string addedOnF;
+
+            if (dataReader.HasRows)
+            {
+                _ = dataReader.Read();
+
+                idF = Convert.ToInt32(GetDbField(dataReader, "ID"));
+                albumF = GetDbField(dataReader, "Album");
+                artistIdF = Convert.ToInt32(GetDbField(dataReader, "Artist_ID"));
+                artistF = GetDbField(dataReader, "Artist");
+                coverLinkF = GetDbField(dataReader, "Cover");
+                YearAndTypeF = GetDbField(dataReader, "YearAndType");
+                HtmlTracksF = GetDbField(dataReader, "Tracks");
+                HtmlMusiciansF = GetDbField(dataReader, "Musicians");
+                yearF = GetDbField(dataReader, "YearN");
+                typeF = GetDbField(dataReader, "Type");
+                isInactiveF = Convert.ToBoolean(GetDbField(dataReader, "Inactive"));
+                addedOnF = GetDbField(dataReader, "AddedOn");
+
+                albumInfo = new AlbumInfo(idF, albumF, artistIdF, artistF, coverLinkF, YearAndTypeF, HtmlTracksF, HtmlMusiciansF, yearF, typeF, isInactiveF, addedOnF);
+            }
+
+            dataReader.Close();
+
+            return albumInfo;
+        }
+
+        public CountryInfo SelectCountryById(int id)
+        {
+            CountryInfo countryInfo = null;
+
+            string sql = $"SELECT * FROM {DataBaseTables.Countries} WHERE id = {id}";
+
+            OleDbDataReader dataReader = ExecuteReader(sql);
+
+            int idF;
+            string countryF;
+            bool isInactiveF;
+
+            if (dataReader.HasRows)
+            {
+                _ = dataReader.Read();
+
+                idF = Convert.ToInt32(GetDbField(dataReader, "ID"));
+                countryF = GetDbField(dataReader, "Country");
+                isInactiveF = Convert.ToBoolean(GetDbField(dataReader, "Inactive"));
+
+                countryInfo = new CountryInfo(idF, countryF, isInactiveF);
+            }
 
             dataReader.Close();
 
             return countryInfo;
         }
 
-        private void ReadTable(string TableName, System.Action<System.Data.OleDb.OleDbDataReader> action)
+        public CountryInfo SelectCountryByName(string country)
+        {
+            CountryInfo countryInfo = null;
+
+            string sql = $"SELECT * FROM {DataBaseTables.Countries} WHERE UCASE(Country) = '{country.ToUpper()}'";
+
+            OleDbDataReader dataReader = ExecuteReader(sql);
+
+            int idF;
+            string countryF;
+            bool isInactiveF;
+
+            if (dataReader.HasRows)
+            {
+                _ = dataReader.Read();
+
+                idF = Convert.ToInt32(GetDbField(dataReader, "ID"));
+                countryF = GetDbField(dataReader, "Country");
+                isInactiveF = Convert.ToBoolean(GetDbField(dataReader, "Inactive"));
+
+                countryInfo = new CountryInfo(idF, countryF, isInactiveF);
+            }
+
+            dataReader.Close();
+
+            return countryInfo;
+        }
+
+        //Exists
+
+        public bool ExistsArtist(ArtistInfo artistInfo)
+        {
+            ArtistInfo artistInfoFound = SelectArtistById(artistInfo.ID);
+
+            return artistInfoFound != null;
+        }
+
+        public bool ExistsAlbum(AlbumInfo albumInfo)
+        {
+            AlbumInfo AlbumInfoFound = SelectAlbumById(albumInfo.ID);
+
+            return AlbumInfoFound != null;
+        }
+
+        public bool ExistsCountry(CountryInfo countryInfo)
+        {
+            CountryInfo countryInfoFound = SelectCountryById(countryInfo.ID);
+
+            return countryInfoFound != null;
+        }
+
+        //
+
+        private void ReadTable(string TableName, Action<OleDbDataReader> action)
         {
             string selectStatement = "SELECT * FROM " + TableName;
 
+            Open();
 
-            //Open();
+            OleDbCommand command = new OleDbCommand(selectStatement, _connection);
 
-            //System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(selectStatement, _connection);
+            OleDbDataReader dataReader = command.ExecuteReader();
 
-            //System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
-
-            //while (dataReader.Read())
-            //{
-            //    action(dataReader);
-            //}
-            //dataReader.Close();
+            while (dataReader.Read())
+            {
+                action(dataReader);
+            }
+            dataReader.Close();
         }
+
     }
 }
-
-
-
-//CREATE TABLE Countries(
-//    ID INTEGER PRIMARY KEY,
-//    Country TEXT,
-//    Inactive INTEGER
-//);
-
-//CREATE UNIQUE INDEX Countries_Country_Index ON Countries(
-//    Country,
-//    ID
-//);
-
-
-//CREATE TABLE Artists(
-//    ID INTEGER PRIMARY KEY,
-//    Artist TEXT,
-//    Country TEXT,
-//    Style TEXT,
-//    Inactive INTEGER
-//);
-
-
-//CREATE UNIQUE INDEX Artists_Artist_Index ON Artists(
-//    Artist,
-//    ID
-//);
-
-//CREATE TABLE Albums(
-//    ID INTEGER PRIMARY KEY,
-//    Album TEXT,
-//    Artist_ID INTEGER,
-//    Artist TEXT,
-//    Cover TEXT,
-//    YearAndType TEXT,
-//    Tracks TEXT,
-//    Musicians TEXT,
-//    YearN STRING,
-//    Type TEXT,
-//    Inactive INTEGER
-//);
-
-//CREATE UNIQUE INDEX Albums_Album_Index ON Albums(
-//    Album,
-//    ID
-//);

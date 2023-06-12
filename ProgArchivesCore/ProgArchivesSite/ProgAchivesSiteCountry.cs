@@ -1,5 +1,6 @@
-﻿
-namespace Candal.Core
+﻿using ProgArchivesCore.Models;
+
+namespace ProgArchivesCore.ProgArchivesSite
 {
     /// <summary>
     /// Retrive information from html progarchives "Countries" pages

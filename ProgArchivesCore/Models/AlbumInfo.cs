@@ -1,5 +1,4 @@
-﻿
-namespace Candal.Core
+﻿namespace ProgArchivesCore.Models
 {
     /// <summary>
     /// Album Info
@@ -36,7 +35,7 @@ namespace Candal.Core
         }
 
         public AlbumInfo(int id, string album, int artistId, string artist, string coverLink, string yearAndType,
-            string htmlTracks, string htmlMusicians, string year, string type, string addedOn)
+            string htmlTracks, string htmlMusicians, string year, string type, bool isInactive, string addedOn)
         {
             ID = id;
             Album = album;
@@ -48,8 +47,8 @@ namespace Candal.Core
             HtmlMusicians = htmlMusicians;
             Year = year;
             Type = type;
-            IsInactive = (Album == "");
+            IsInactive = isInactive;
             AddedOn = addedOn;
-        } 
+        }
     }
 }

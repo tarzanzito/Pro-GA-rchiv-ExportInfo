@@ -1,7 +1,11 @@
 ﻿
 using System;
+using ProgArchivesCore.DataBaseManagers;
+using ProgArchivesCore.Models;
+using ProgArchivesCore.ProgGnosisSite;
+using ProgArchivesCore.SiteManagers;
 
-namespace Candal.Core
+namespace ProgArchivesCore.ProgArchivesSite
 {
     /// <summary>
     /// Manage pages from progarchives site and save info in an DB
@@ -50,12 +54,15 @@ namespace Candal.Core
 
                 ArtistInfo artistInfo = progAchivesSiteArtist.GetArtistInfoFromHtmlData(page, allHtmlData, _dateNow);
 
-                CountryInfo countryInfo  = _dataBaseManager.SelectCountryByName(artistInfo.Country);
+                CountryInfo countryInfo = _dataBaseManager.SelectCountryByName(artistInfo.Country);
                 artistInfo.SetCountryId(countryInfo.ID);
 
-                _dataBaseManager.InsertArtist(artistInfo);
+                if (_dataBaseManager.ExistsArtist(artistInfo))
+                    _dataBaseManager.UpdateArtist(artistInfo);
+                else
+                    _dataBaseManager.InsertArtist(artistInfo);
 
-                System.Console.WriteLine($"Artist:{page}");
+                Console.WriteLine($"Artist:{page}");
             }
         }
 
@@ -82,9 +89,13 @@ namespace Candal.Core
 
                 AlbumInfo albumInfo = progAchivesSiteAlbum.GetAlbumInfoFromHtmlData(page, allHtmlData, _dateNow);
 
-                _dataBaseManager.InsertAlbum(albumInfo);
 
-                System.Console.WriteLine($"Album:{page}");
+                if (_dataBaseManager.ExistsAlbum(albumInfo))
+                    _dataBaseManager.UpdateAlbum(albumInfo);
+                else
+                    _dataBaseManager.InsertAlbum(albumInfo);
+
+                Console.WriteLine($"Album:{page}");
 
             }
         }
@@ -104,10 +115,13 @@ namespace Candal.Core
                 string htmlData = _siteManager.GetAllHtmlData($"http://www.progarchives.com/Bands-country.asp?country={page}");
 
                 CountryInfo countryInfo = progAchivesSiteCountry.GetCountryNameFromHtmlData(page, htmlData);
-                
-                _dataBaseManager.InsertCountry(countryInfo);
-                
-                System.Console.WriteLine($"Country:{page}");
+
+                if (_dataBaseManager.ExistsCountry(countryInfo))
+                    _dataBaseManager.UpdateCountry(countryInfo);
+                else
+                    _dataBaseManager.InsertCountry(countryInfo);
+
+                Console.WriteLine($"Country:{page}");
             }
         }
     }
