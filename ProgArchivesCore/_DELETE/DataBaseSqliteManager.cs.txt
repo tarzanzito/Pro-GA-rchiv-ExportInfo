@@ -1,0 +1,426 @@
+﻿
+using ProgArchivesCore.DataBaseManagers;
+using ProgArchivesCore.Models;
+using System;
+using System.Data.SQLite;
+
+
+namespace Candal.Core
+{
+    /// <summary>
+    /// Manage "Sqlite" Database
+    /// </summary>
+    public class DataBaseSqliteManager : IDataBaseManager
+    {
+        private string _databaseName;
+        private string _connectionString;
+        private System.Data.SQLite.SQLiteConnection _connection = null;
+
+        private bool IsValid
+        {
+            get
+            {
+                return (_connection != null);
+            }
+        }
+
+        private bool IsOpen
+        {
+            get
+            {
+                return _connection.State == System.Data.ConnectionState.Open;
+            }
+        }
+
+        public DataBaseSqliteManager(string DatabaseName)
+        {
+            _databaseName = DatabaseName;
+
+            _connectionString = "Data source=" + _databaseName + "; Version=3";
+
+            _connection = new SQLiteConnection(_connectionString);
+            Open();
+
+            //if (!File.Exists("./wrestlerdatabase.sqlite3"))
+            //{
+
+            //    SQLiteConnection.CreateFile("wrestlerdatabase.sqlite3");
+            //    Console.WriteLine("Wrestler Database file created");
+            //}
+
+            Close();
+
+
+        }
+
+        public void Open()
+        {
+            if (!IsValid)
+                throw new Exception("Database is Invalid.");
+
+            if (IsOpen)
+                return;
+
+            _connection.Open();
+        }
+
+        public void Close()
+        {
+
+            if (!IsValid)
+                throw new Exception("Database is Invalid.");
+
+            if (!IsOpen)
+                return;
+
+            _connection.Close();
+        }
+
+        private void ExecuteNonQuery(string sql)
+        {
+            Open();
+
+            SQLiteCommand command = new SQLiteCommand(sql, _connection);
+
+            //mySQLiteCommand.Parameters.AddWithValue("@foodname", "Strawberry");
+            // mySQLiteCommand.Parameters.AddWithValue("@foodtype", "Fruit");
+            
+            int result = command.ExecuteNonQuery();
+        }
+
+        private int SelectMax(DataBaseTables dataBaseTable)
+        {
+            int value = 0;
+            string sql = "";
+
+            Open();
+
+            sql = $"SELECT MAX(ID) AS MaxValue FROM {dataBaseTable.ToString()}";
+
+            SQLiteCommand command = new SQLiteCommand(sql, _connection);
+
+            SQLiteDataReader dataReader = command.ExecuteReader();
+
+            string temp = "";
+            if (dataReader.HasRows)
+            {
+                _ = dataReader.Read();
+                temp = dataReader["MaxValue"].ToString();
+            }
+
+            _ = System.Int32.TryParse(temp, out value);
+
+            dataReader.Close();
+
+            return value;
+        }
+
+        //Maxs
+        public int GetMaxArtist()
+        {
+            return SelectMax(DataBaseTables.Artists);
+        }
+
+        public int GetMaxAlbum()
+        {
+            return SelectMax(DataBaseTables.Albums);
+        }
+
+        public int GetMaxCountry()
+        {
+            return SelectMax(DataBaseTables.Countries);
+        }
+
+        // Inserts
+        public void InsertArtist(ArtistInfo artistInfo)
+        {
+            string sql = "INSERT INTO " +
+                DataBaseTables.Artists.ToString() +
+                " VALUES (" +
+                artistInfo.ID.ToString() + "," +
+                "'" + artistInfo.Artist.Replace("'", "''") + "'," +
+                "'" + artistInfo.Country.Replace("'", "''") + "'," +
+                "'" + artistInfo.Style.Replace("'", "''") + "'," +
+                artistInfo.IsInactive.ToString() + "," +
+                "'" + artistInfo.AddedOn + "'" +
+                ")";
+
+            ExecuteNonQuery(sql);
+        }
+
+        public void InsertAlbum(AlbumInfo albumInfo)
+        {
+            string sql = "INSERT INTO " +
+                DataBaseTables.Albums.ToString() +
+                " VALUES (" +
+                albumInfo.ID.ToString() + "," +
+                "'" + albumInfo.Album.Replace("'", "''") + "'," +
+                albumInfo.ArtistId.ToString() + "," +
+                "'" + albumInfo.Artist.Replace("'", "''") + "'," +
+                "'" + albumInfo.CoverLink.Replace("'", "''") + "'," +
+                "'" + albumInfo.YearAndType.Replace("'", "''") + "'," +
+                "'" + albumInfo.HtmlTracks.Replace("'", "''") + "'," +
+                "'" + albumInfo.HtmlMusicians.Replace("'", "''") + "'," +
+                "'" + albumInfo.Year + "'," +
+                "'" + albumInfo.Type + "'," +
+                albumInfo.IsInactive.ToString() + "," +
+                "'" + albumInfo.AddedOn + "'" +
+
+                ")";
+
+            ExecuteNonQuery(sql);
+        }
+
+        public void InsertCountry(CountryInfo countryInfo)
+        {
+            string sql = "INSERT INTO " +
+                DataBaseTables.Countries.ToString() +
+                " VALUES (" +
+                countryInfo.ID.ToString() + "," +
+                "'" + countryInfo.Country.Replace("'", "''") + "'," +
+                countryInfo.IsInactive.ToString() +
+                ")";
+
+            ExecuteNonQuery(sql);
+        }
+
+        // Updates
+        public void UpdateArtist(ArtistInfo artistInfo)
+        {
+            string sql = "UPDATE " +
+                 DataBaseTables.Artists.ToString() +
+                 " SET " +
+                 "Artist = '" + artistInfo.Artist.Replace("'", "''") + "', " +
+                 "Country = '" + artistInfo.Country.Replace("'", "''") + "', " +
+                 "Style = '" + artistInfo.Style.Replace("'", "''") + "', " +
+                 "Inactive = " + artistInfo.IsInactive.ToString() + ", " +
+                 "AddedOn = '" + artistInfo.AddedOn + "' " +
+                 "WHERE Artist_ID = " + artistInfo.ID.ToString().Trim();
+
+            ExecuteNonQuery(sql);
+        }
+
+        public void UpdateAlbum(AlbumInfo albumInfo)
+        {
+            string sql = "UPDATE " +
+                DataBaseTables.Albums.ToString() +
+                " SET " +
+                "Album = '" + albumInfo.Album.Replace("'", "''") + "', " +
+                "Artist_ID = " + albumInfo.ArtistId.ToString() + ", " +
+                "Artist = '" + albumInfo.Artist.Replace("'", "''") + "', " +
+                "Cover = '" + albumInfo.CoverLink.Replace("'", "''") + "', " +
+                "YearAndType = '" + albumInfo.YearAndType.Replace("'", "''") + "', " +
+                "Tracks = '" + albumInfo.HtmlTracks.Replace("'", "''") + "', " +
+                "Musicians = '" + albumInfo.HtmlMusicians.Replace("'", "''") + "', " +
+                "YearN = '" + albumInfo.Year + "', " +
+                "Type = '" + albumInfo.Type + "', " +
+                "Inactive = " + albumInfo.IsInactive.ToString() + ", " +
+                "AddedOn = '" + albumInfo.AddedOn + "' " +
+                "WHERE Album_ID = " + albumInfo.ID.ToString();
+
+            ExecuteNonQuery(sql);
+        }
+
+        public void UpdateCountry(CountryInfo countryInfo)
+        {
+            string sql = "UPDATE " +
+                DataBaseTables.Countries.ToString() +
+                " SET " +
+                "Country = '" + countryInfo.Country.Replace("'", "''") + "', " +
+                "Inactive = " + countryInfo.IsInactive.ToString() + " " +
+                "WHERE ID = " + countryInfo.ID.ToString();
+
+            ExecuteNonQuery(sql);
+        }
+
+        //Deletes
+
+        public void DeleteArtist(ArtistInfo artistInfo)
+        {
+            string sql = "DELETE " +
+                DataBaseTables.Artists.ToString() +
+                " WHERE ID = " + artistInfo.ID.ToString();
+
+            ExecuteNonQuery(sql);
+        }
+
+        public void DeleteAlbum(AlbumInfo albumInfo)
+        {
+            string sql = "DELETE " +
+                DataBaseTables.Albums.ToString() +
+                " WHERE ID = " + albumInfo.ID.ToString();
+
+            ExecuteNonQuery(sql);
+        }
+
+        public void DeleteCountry(CountryInfo countryInfo)
+        {
+            string sql = "DELETE " +
+                DataBaseTables.Countries.ToString() +
+                " WHERE ID = " + countryInfo.ID.ToString();
+
+            ExecuteNonQuery(sql);
+        }
+
+        //Delete All
+
+        public void DeleteAllArtists()
+        {
+            string sql = "DELETE " + DataBaseTables.Artists.ToString();
+
+            ExecuteNonQuery(sql);
+        }
+
+        public void DeleteAllAlbuns()
+        {
+            string sql = "DELETE " + DataBaseTables.Albums.ToString();
+
+            ExecuteNonQuery(sql);
+        }
+
+        public void DeleteAllCountries()
+        {
+            string sql = "DELETE " + DataBaseTables.Countries.ToString();
+
+            ExecuteNonQuery(sql);
+        }
+
+        //Select
+
+        public CountryInfo SelectCountryByName(string name)
+        {
+            CountryInfo countryInfo = null;
+
+            string sql = "SELECT * FROM " +
+                DataBaseTables.Countries.ToString() +
+                " WHERE UPPER(Country) = '" + name.ToUpper() + "'";
+
+            Open();
+
+            SQLiteCommand command = new SQLiteCommand(sql, _connection);
+            
+            SQLiteDataReader dataReader = command.ExecuteReader();
+
+            string temp = "";
+            if (dataReader.HasRows)
+            {
+                _ = dataReader.Read();
+
+                int id;
+                string country;
+                bool isInactive;
+
+                temp = dataReader["ID"].ToString();
+                _ = System.Int32.TryParse(temp, out id);
+
+                country = dataReader["Country"].ToString();
+
+                temp = dataReader["Inactive"].ToString();
+                _ = System.Boolean.TryParse(temp, out isInactive);
+
+                countryInfo = new CountryInfo(id, country, isInactive);
+            }
+            else
+                countryInfo = new CountryInfo(0);
+
+            dataReader.Close();
+
+            return countryInfo;
+        }
+
+        private void ReadTable(string TableName, System.Action<System.Data.OleDb.OleDbDataReader> action)
+        {
+            string selectStatement = "SELECT * FROM " + TableName;
+
+
+            //Open();
+
+            //System.Data.OleDb.OleDbCommand command = new System.Data.OleDb.OleDbCommand(selectStatement, _connection);
+
+            //System.Data.OleDb.OleDbDataReader dataReader = command.ExecuteReader();
+
+            //while (dataReader.Read())
+            //{
+            //    action(dataReader);
+            //}
+            //dataReader.Close();
+        }
+
+        public ArtistInfo SelectArtistById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public AlbumInfo SelectAlbumById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public CountryInfo SelectCountryById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ExistsArtist(ArtistInfo artistInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ExistsAlbum(AlbumInfo albumInfo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ExistsCountry(CountryInfo countryInfo)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+
+
+//CREATE TABLE Countries(
+//    ID INTEGER PRIMARY KEY,
+//    Country TEXT,
+//    Inactive INTEGER
+//);
+
+//CREATE UNIQUE INDEX Countries_Country_Index ON Countries(
+//    Country,
+//    ID
+//);
+
+
+//CREATE TABLE Artists(
+//    ID INTEGER PRIMARY KEY,
+//    Artist TEXT,
+//    Country TEXT,
+//    Style TEXT,
+//    Inactive INTEGER
+//);
+
+
+//CREATE UNIQUE INDEX Artists_Artist_Index ON Artists(
+//    Artist,
+//    ID
+//);
+
+//CREATE TABLE Albums(
+//    ID INTEGER PRIMARY KEY,
+//    Album TEXT,
+//    Artist_ID INTEGER,
+//    Artist TEXT,
+//    Cover TEXT,
+//    YearAndType TEXT,
+//    Tracks TEXT,
+//    Musicians TEXT,
+//    YearN STRING,
+//    Type TEXT,
+//    Inactive INTEGER
+//);
+
+//CREATE UNIQUE INDEX Albums_Album_Index ON Albums(
+//    Album,
+//    ID
+//);

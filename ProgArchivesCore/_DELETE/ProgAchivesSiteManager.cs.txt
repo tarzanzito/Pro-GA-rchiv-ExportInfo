@@ -1,10 +1,12 @@
 ﻿
+
 using System;
 using ProgArchivesCore.DataBaseManagers;
 using ProgArchivesCore.Models;
+using ProgArchivesCore.ProgArchivesSite;
 using ProgArchivesCore.SiteManagers;
 
-namespace ProgArchivesCore.ProgArchivesSite
+namespace Candal.Core
 {
     /// <summary>
     /// Manage pages from progarchives site and save info in an DB
@@ -14,11 +16,6 @@ namespace ProgArchivesCore.ProgArchivesSite
     /// </summary>
     public class ProgAchivesSiteManager
     {
-        public event Delegates.EventCountryInfo EventCountryInfo;
-        public event Delegates.EventArtistInfo EventArtistInfo;
-        public event Delegates.EventAlbumInfo EventAlbumInfo;
-
-
         private SiteManager _siteManager = null;
         private IDataBaseManager _dataBaseManager = null;
         private string _dateNow = null;
@@ -58,16 +55,12 @@ namespace ProgArchivesCore.ProgArchivesSite
 
                 ArtistInfo artistInfo = progAchivesSiteArtist.GetArtistInfoFromHtmlData(page, allHtmlData, _dateNow);
 
-                CountryInfo countryInfo = _dataBaseManager.SelectCountryByName(artistInfo.Country);
+                CountryInfo countryInfo  = _dataBaseManager.SelectCountryByName(artistInfo.Country);
                 artistInfo.SetCountryId(countryInfo.ID);
 
-                if (_dataBaseManager.ExistsArtist(artistInfo))
-                    _dataBaseManager.UpdateArtist(artistInfo);
-                else
-                    _dataBaseManager.InsertArtist(artistInfo);
+                _dataBaseManager.InsertArtist(artistInfo);
 
-                if (EventArtistInfo != null)
-                    EventArtistInfo(artistInfo, uri); //  Console.WriteLine($"Artist:{page}"); //aqui
+                System.Console.WriteLine($"Artist:{page}");
             }
         }
 
@@ -94,14 +87,9 @@ namespace ProgArchivesCore.ProgArchivesSite
 
                 AlbumInfo albumInfo = progAchivesSiteAlbum.GetAlbumInfoFromHtmlData(page, allHtmlData, _dateNow);
 
+                _dataBaseManager.InsertAlbum(albumInfo);
 
-                if (_dataBaseManager.ExistsAlbum(albumInfo))
-                    _dataBaseManager.UpdateAlbum(albumInfo);
-                else
-                    _dataBaseManager.InsertAlbum(albumInfo);
-
-                if (EventAlbumInfo != null)
-                    EventAlbumInfo(albumInfo, uri); //     Console.WriteLine($"Album:{page}");
+                System.Console.WriteLine($"Album:{page}");
 
             }
         }
@@ -118,19 +106,13 @@ namespace ProgArchivesCore.ProgArchivesSite
 
             for (int page = fromPage; page <= toPage; page++)
             {
-                string uri = $"http://www.progarchives.com/Bands-country.asp?country={page}";
-                string htmlData = _siteManager.GetAllHtmlData(uri);
+                string htmlData = _siteManager.GetAllHtmlData($"http://www.progarchives.com/Bands-country.asp?country={page}");
 
                 CountryInfo countryInfo = progAchivesSiteCountry.GetCountryNameFromHtmlData(page, htmlData);
-
-                if (_dataBaseManager.ExistsCountry(countryInfo))
-                    _dataBaseManager.UpdateCountry(countryInfo);
-                else
-                    _dataBaseManager.InsertCountry(countryInfo);
-
-
-                if (EventCountryInfo != null)
-                    EventCountryInfo(countryInfo, uri); // Console.WriteLine($"Country:{page}");
+                
+                _dataBaseManager.InsertCountry(countryInfo);
+                
+                System.Console.WriteLine($"Country:{page}");
             }
         }
     }

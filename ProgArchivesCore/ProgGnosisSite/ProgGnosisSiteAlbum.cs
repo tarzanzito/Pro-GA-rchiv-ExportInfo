@@ -5,7 +5,7 @@ namespace ProgArchivesCore.ProgGnosisSite
     /// <summary>
     /// Retrive information from html progarchives "Albums" pages
     /// </summary>
-    internal class ProgAchivesSiteAlbum
+    internal class ProgGnosisSiteAlbum
     {
         private string _htmlData;
 

@@ -49,6 +49,8 @@
             button2 = new Button();
             buttonAnalyseAlbums = new Button();
             buttonAnalyseCountries = new Button();
+            textBoxConnectionString = new TextBox();
+            label4 = new Label();
             SuspendLayout();
             // 
             // backgroundWorker1
@@ -57,7 +59,7 @@
             // 
             // buttonProcessArtists
             // 
-            buttonProcessArtists.Location = new Point(423, 19);
+            buttonProcessArtists.Location = new Point(434, 18);
             buttonProcessArtists.Name = "buttonProcessArtists";
             buttonProcessArtists.Size = new Size(60, 23);
             buttonProcessArtists.TabIndex = 0;
@@ -134,7 +136,7 @@
             // 
             // textBoxUntilAlbum
             // 
-            textBoxUntilAlbum.Location = new Point(339, 52);
+            textBoxUntilAlbum.Location = new Point(350, 51);
             textBoxUntilAlbum.Multiline = true;
             textBoxUntilAlbum.Name = "textBoxUntilAlbum";
             textBoxUntilAlbum.Size = new Size(69, 23);
@@ -143,7 +145,7 @@
             // 
             // textBoxUntilArtist
             // 
-            textBoxUntilArtist.Location = new Point(339, 19);
+            textBoxUntilArtist.Location = new Point(350, 18);
             textBoxUntilArtist.Multiline = true;
             textBoxUntilArtist.Name = "textBoxUntilArtist";
             textBoxUntilArtist.Size = new Size(69, 23);
@@ -153,7 +155,7 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(271, 55);
+            label5.Location = new Point(282, 54);
             label5.Name = "label5";
             label5.Size = new Size(62, 15);
             label5.TabIndex = 9;
@@ -162,7 +164,7 @@
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(271, 22);
+            label6.Location = new Point(282, 21);
             label6.Name = "label6";
             label6.Size = new Size(62, 15);
             label6.TabIndex = 8;
@@ -171,7 +173,7 @@
             // checkBoxOnlyOne
             // 
             checkBoxOnlyOne.AutoSize = true;
-            checkBoxOnlyOne.Location = new Point(271, 122);
+            checkBoxOnlyOne.Location = new Point(282, 121);
             checkBoxOnlyOne.Name = "checkBoxOnlyOne";
             checkBoxOnlyOne.Size = new Size(119, 19);
             checkBoxOnlyOne.TabIndex = 14;
@@ -184,12 +186,12 @@
             listBox1.ItemHeight = 15;
             listBox1.Location = new Point(12, 148);
             listBox1.Name = "listBox1";
-            listBox1.Size = new Size(471, 154);
+            listBox1.Size = new Size(483, 154);
             listBox1.TabIndex = 15;
             // 
             // buttonProcessAlbums
             // 
-            buttonProcessAlbums.Location = new Point(423, 51);
+            buttonProcessAlbums.Location = new Point(434, 50);
             buttonProcessAlbums.Name = "buttonProcessAlbums";
             buttonProcessAlbums.Size = new Size(60, 23);
             buttonProcessAlbums.TabIndex = 16;
@@ -199,7 +201,7 @@
             // 
             // buttonProcessCountries
             // 
-            buttonProcessCountries.Location = new Point(423, 85);
+            buttonProcessCountries.Location = new Point(434, 84);
             buttonProcessCountries.Name = "buttonProcessCountries";
             buttonProcessCountries.Size = new Size(60, 23);
             buttonProcessCountries.TabIndex = 17;
@@ -211,15 +213,15 @@
             // 
             buttonAnalyseArtists.Location = new Point(192, 19);
             buttonAnalyseArtists.Name = "buttonAnalyseArtists";
-            buttonAnalyseArtists.Size = new Size(60, 23);
+            buttonAnalyseArtists.Size = new Size(73, 23);
             buttonAnalyseArtists.TabIndex = 18;
-            buttonAnalyseArtists.Text = "Analyse";
+            buttonAnalyseArtists.Text = "Show Page";
             buttonAnalyseArtists.UseVisualStyleBackColor = true;
             buttonAnalyseArtists.Click += buttonAnalyseArtists_Click;
             // 
             // button2
             // 
-            button2.Location = new Point(423, 119);
+            button2.Location = new Point(434, 118);
             button2.Name = "button2";
             button2.Size = new Size(60, 23);
             button2.TabIndex = 19;
@@ -230,9 +232,9 @@
             // 
             buttonAnalyseAlbums.Location = new Point(192, 52);
             buttonAnalyseAlbums.Name = "buttonAnalyseAlbums";
-            buttonAnalyseAlbums.Size = new Size(60, 23);
+            buttonAnalyseAlbums.Size = new Size(73, 23);
             buttonAnalyseAlbums.TabIndex = 20;
-            buttonAnalyseAlbums.Text = "Analyse";
+            buttonAnalyseAlbums.Text = "Show Page";
             buttonAnalyseAlbums.UseVisualStyleBackColor = true;
             buttonAnalyseAlbums.Click += buttonAnalyseAlbums_Click;
             // 
@@ -240,17 +242,37 @@
             // 
             buttonAnalyseCountries.Location = new Point(192, 86);
             buttonAnalyseCountries.Name = "buttonAnalyseCountries";
-            buttonAnalyseCountries.Size = new Size(60, 23);
+            buttonAnalyseCountries.Size = new Size(73, 23);
             buttonAnalyseCountries.TabIndex = 21;
-            buttonAnalyseCountries.Text = "Analyse";
+            buttonAnalyseCountries.Text = "Show Page";
             buttonAnalyseCountries.UseVisualStyleBackColor = true;
             buttonAnalyseCountries.Click += buttonAnalyseCountries_Click;
             // 
-            // Form1
+            // textBoxConnectionString
+            // 
+            textBoxConnectionString.Location = new Point(133, 308);
+            textBoxConnectionString.Multiline = true;
+            textBoxConnectionString.Name = "textBoxConnectionString";
+            textBoxConnectionString.ReadOnly = true;
+            textBoxConnectionString.Size = new Size(362, 72);
+            textBoxConnectionString.TabIndex = 23;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(24, 311);
+            label4.Name = "label4";
+            label4.Size = new Size(103, 15);
+            label4.TabIndex = 22;
+            label4.Text = "ConnectionString:";
+            // 
+            // FormMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(496, 313);
+            ClientSize = new Size(507, 392);
+            Controls.Add(textBoxConnectionString);
+            Controls.Add(label4);
             Controls.Add(buttonAnalyseCountries);
             Controls.Add(buttonAnalyseAlbums);
             Controls.Add(button2);
@@ -271,7 +293,7 @@
             Controls.Add(label2);
             Controls.Add(label1);
             Controls.Add(buttonProcessArtists);
-            Name = "Form1";
+            Name = "FormMain";
             Text = "Form1";
             FormClosing += FormMain_FormClosing;
             Load += FormMain_Load;
@@ -303,5 +325,7 @@
         private Button button2;
         private Button buttonAnalyseAlbums;
         private Button buttonAnalyseCountries;
+        private TextBox textBoxConnectionString;
+        private Label label4;
     }
 }

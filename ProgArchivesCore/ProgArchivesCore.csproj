@@ -8,6 +8,20 @@
     <FileVersion>2.2.1.1</FileVersion>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="_DELETE\AlbumInfo.cs.txt" />
+    <None Remove="_DELETE\ProgAchivesSiteAlbum.cs.txt" />
+    <None Remove="_DELETE\ProgAchivesSiteArtist.cs.txt" />
+    <None Remove="_DELETE\ProgAchivesSiteManager.cs.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="_DELETE\AlbumInfo.cs.txt" />
+    <Compile Include="_DELETE\ProgAchivesSiteAlbum.cs.txt" />
+    <Compile Include="_DELETE\ProgAchivesSiteArtist.cs.txt" />
+    <Compile Include="_DELETE\ProgAchivesSiteManager.cs.txt" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="System.Data.OleDb" Version="7.0.0" />
 		<PackageReference Include="System.Data.SQLite.Core" Version="1.0.117" />

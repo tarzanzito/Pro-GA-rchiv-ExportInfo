@@ -1,9 +1,12 @@
+using ProgArchivesCore;
 using ProgArchivesCore.Config;
 using ProgArchivesCore.DataBaseManagers;
+using ProgArchivesCore.Models;
 using ProgArchivesCore.ProgArchivesSite;
 using ProgArchivesCore.SiteManagers;
 using ProgArchivesCore.Statics;
 using System.Diagnostics;
+using static ProgArchivesCore.Delegates;
 
 namespace WinFormsProgArchives
 {
@@ -204,12 +207,14 @@ namespace WinFormsProgArchives
 
             //Process ProgAchivesSite
             ProgAchivesSiteManager progAchivesSite = new ProgAchivesSiteManager(_siteManager, _dataBaseManager);
-
+            
             //Process Artists
             if (processAction == ProcessAction.Artists)
             {
                 if (untilPageId <= _lastArtistId)
                     throw new Exception("Nothing todo. (last Processed Artist is greather than Until Artist");
+
+                progAchivesSite.EventArtistInfo += FireEventArtistInfo;
 
                 progAchivesSite.ProcessArtists(untilPageId, processOnlyOne);
             }
@@ -220,16 +225,17 @@ namespace WinFormsProgArchives
                 if (untilPageId <= _lastAlbumId)
                     throw new Exception("Nothing todo. (last Processed Album is greather than Until Album");
 
+                progAchivesSite.EventAlbumInfo += FireEventAlbumInfo;
                 progAchivesSite.ProcessAlbums(untilPageId, processOnlyOne);
             }
 
             //Process Countries
             if (processAction == ProcessAction.Countries)
             {
+                progAchivesSite.EventCountryInfo += FireEventCountryInfo;
                 progAchivesSite.ProcessCountries(firstDeleteAll: true);
             }
         }
-
         private void RefreshData()
         {
             //Open access database
@@ -242,6 +248,27 @@ namespace WinFormsProgArchives
             textBoxLastArtist.Text = _lastArtistId.ToString();
             textBoxLastAlbum.Text = _lastAlbumId.ToString();
             textBoxLastCountry.Text = _lastCountryId.ToString();
+
+            textBoxConnectionString.Text = $"{_configurationFields?.DataBaseEngine} = {_configurationFields?.CurrentDirectory} = {_configurationFields?.DataBaseLocation}";
+        }
+
+        #endregion
+
+        #region events
+
+        public void FireEventCountryInfo(CountryInfo countryInfo, string uri)
+        {
+            Console.WriteLine("The threshold was reached.");
+        }
+
+        public void FireEventArtistInfo(ArtistInfo artistInfo, string uri)
+        {
+            Console.WriteLine("The threshold was reached.");
+        }
+
+        public void FireEventAlbumInfo(AlbumInfo albumInfo, string uri)
+        {
+            Console.WriteLine("The threshold was reached.");
         }
 
         #endregion
