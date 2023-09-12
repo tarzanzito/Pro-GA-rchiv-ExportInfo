@@ -4,6 +4,7 @@ using System.Configuration;
 using ProgArchivesCore.DataBaseManagers;
 using ProgArchivesCore.SiteManagers;
 using ProgArchivesCore.Config;
+using Serilog;
 
 namespace ProgArchivesCore.Statics
 {
@@ -53,14 +54,7 @@ namespace ProgArchivesCore.Statics
 
         public static SiteManager SiteManagerLink(ConfigurationFields configurationFields)
         {
-            SiteManager siteManager = null;
-
-            if (configurationFields.HasProxy)
-                siteManager = new SiteManager(configurationFields);
-            else
-                siteManager = new SiteManager();
-
-            return siteManager;
+            return new SiteManager(configurationFields);
         }
 
         public static IDataBaseManager DatabaseLink(ConfigurationFields configurationFields)
@@ -77,27 +71,27 @@ namespace ProgArchivesCore.Statics
                     throw new Exception("AppSettings:[DataBaseEngine] not valid. (Options: 'MsAccess', 'Sqlite', 'MySql')");
 
             }
-            
-//            string dataBaseUser = ConfigurationManager.AppSettings["DataBaseUser"];
-//            string dataBasePassword = ConfigurationManager.AppSettings["DataBasePassword"];
+
+            //            string dataBaseUser = ConfigurationManager.AppSettings["DataBaseUser"];
+            //            string dataBasePassword = ConfigurationManager.AppSettings["DataBasePassword"];
 
 
-//            //string dbName = "ProgArchives2010.mdb";
-//            string currentDirectory = Environment.CurrentDirectory;
-//            //string relName = @"\";
+            //            //string dbName = "ProgArchives2010.mdb";
+            //            string currentDirectory = Environment.CurrentDirectory;
+            //            //string relName = @"\";
 
-//#if DEBUG
-//            currentDirectory = Directory.GetParent(currentDirectory).Parent.Parent.Parent.FullName;
-//            //relName = @"\Resources\";
-//#endif
-//            string fullNameDB = System.IO.Path.Combine(currentDirectory, dataBaseLocation);
-//            //string fullNameDB = currentDirectory + dataBaseLocation;
+            //#if DEBUG
+            //            currentDirectory = Directory.GetParent(currentDirectory).Parent.Parent.Parent.FullName;
+            //            //relName = @"\Resources\";
+            //#endif
+            //            string fullNameDB = System.IO.Path.Combine(currentDirectory, dataBaseLocation);
+            //            //string fullNameDB = currentDirectory + dataBaseLocation;
 
-//            System.Console.WriteLine($"DataBase Path:{fullNameDB}");
+            //         Log.Information($"DataBase Path:{fullNameDB}");
 
-//            //Open access database
-//            IDataBaseManager dataBaseManager = new DataBaseAccessManager(fullNameDB);
-//            //IDataBaseManager dataBaseManager = new DataBaseSqliteManager(fullNameDB);
+            //            //Open access database
+            //            IDataBaseManager dataBaseManager = new DataBaseAccessManager(fullNameDB);
+            //            //IDataBaseManager dataBaseManager = new DataBaseSqliteManager(fullNameDB);
 
             //return dataBaseManager;
         }
@@ -108,7 +102,7 @@ namespace ProgArchivesCore.Statics
 
             string fullNameDB = System.IO.Path.Join(currentDirectory, configurationFields.DataBaseLocation);
 
-            System.Console.WriteLine($"DataBase Path:{fullNameDB}");
+            Log.Information($"'CommonUtils.DatabaseMsAccess' - DataBase Path:{fullNameDB}");
 
             //Open access database
             IDataBaseManager dataBaseManager = new DataBaseAccessManager(fullNameDB);
@@ -122,12 +116,14 @@ namespace ProgArchivesCore.Statics
 
             string fullNameDB = System.IO.Path.Join(currentDirectory, configurationFields.DataBaseLocation);
 
-            System.Console.WriteLine($"DataBase Path:{fullNameDB}");
+            Log.Information($"'CommonUtils.DatabaseSqlite' - DataBase Path:{fullNameDB}");
 
             //Open access database
             IDataBaseManager dataBaseManager = new DataBaseSqliteManager(fullNameDB);
 
             return dataBaseManager;
         }
+
     }
 }
+

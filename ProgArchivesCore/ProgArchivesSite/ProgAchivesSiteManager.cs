@@ -3,6 +3,7 @@ using System;
 using ProgArchivesCore.DataBaseManagers;
 using ProgArchivesCore.Models;
 using ProgArchivesCore.SiteManagers;
+using Serilog;
 
 namespace ProgArchivesCore.ProgArchivesSite
 {
@@ -66,8 +67,10 @@ namespace ProgArchivesCore.ProgArchivesSite
                 else
                     _dataBaseManager.InsertArtist(artistInfo);
 
+                Log.Information($"'ProgArchivesCore.ProgArchivesSite.ProcessArtists' - Artist:{page}");
+
                 if (EventArtistInfo != null)
-                    EventArtistInfo(artistInfo, uri); //  Console.WriteLine($"Artist:{page}"); //aqui
+                    EventArtistInfo(artistInfo, uri);
             }
         }
 
@@ -100,9 +103,10 @@ namespace ProgArchivesCore.ProgArchivesSite
                 else
                     _dataBaseManager.InsertAlbum(albumInfo);
 
-                if (EventAlbumInfo != null)
-                    EventAlbumInfo(albumInfo, uri); //     Console.WriteLine($"Album:{page}");
+                Log.Information($"'ProgArchivesCore.ProgArchivesSite.ProcessAlbums' - Album:{page}");
 
+                if (EventAlbumInfo != null)
+                    EventAlbumInfo(albumInfo, uri);
             }
         }
 
@@ -128,9 +132,11 @@ namespace ProgArchivesCore.ProgArchivesSite
                 else
                     _dataBaseManager.InsertCountry(countryInfo);
 
+                Log.Information($"'ProgArchivesCore.ProgArchivesSite.ProcessCountries' - Country:{page}");
 
                 if (EventCountryInfo != null)
-                    EventCountryInfo(countryInfo, uri); // Console.WriteLine($"Country:{page}");
+                    EventCountryInfo(countryInfo, uri);
+
             }
         }
     }

@@ -2,6 +2,7 @@
 using System;
 using System.Data.SQLite;
 using ProgArchivesCore.Models;
+using Serilog;
 
 namespace ProgArchivesCore.DataBaseManagers
 {
@@ -43,7 +44,7 @@ namespace ProgArchivesCore.DataBaseManagers
             //{
 
             //    SQLiteConnection.CreateFile("wrestlerdatabase.sqlite3");
-            //    Console.WriteLine("Wrestler Database file created");
+            //Log.Information("Wrestler Database file created");
             //}
 
             Close();

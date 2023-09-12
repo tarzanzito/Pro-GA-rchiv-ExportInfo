@@ -5,6 +5,7 @@ using ProgArchivesCore.Models;
 using ProgArchivesCore.ProgArchivesSite;
 using ProgArchivesCore.SiteManagers;
 using ProgArchivesCore.Statics;
+using Serilog;
 using System.Diagnostics;
 using static ProgArchivesCore.Delegates;
 
@@ -258,17 +259,20 @@ namespace WinFormsProgArchives
 
         public void FireEventCountryInfo(CountryInfo countryInfo, string uri)
         {
-            Console.WriteLine("The threshold was reached.");
+            listBox1.Items.Add(uri);
+            Log.Information($"'MusicCollectionMsDos.FireEventCountryInfo' | URI={uri} | CountryInfo={countryInfo}");
         }
 
         public void FireEventArtistInfo(ArtistInfo artistInfo, string uri)
         {
-            Console.WriteLine("The threshold was reached.");
+            listBox1.Items.Add(uri);
+            Log.Information($"'MusicCollectionMsDos.FireEventArtistInfo' | URI={uri} | ArtistInfo={artistInfo}");
         }
 
         public void FireEventAlbumInfo(AlbumInfo albumInfo, string uri)
         {
-            Console.WriteLine("The threshold was reached.");
+            listBox1.Items.Add(uri);
+            Log.Information($"'MusicCollectionMsDos.FireEventAlbumInfo' | URI={uri} | AlbumInfo={albumInfo}");
         }
 
         #endregion

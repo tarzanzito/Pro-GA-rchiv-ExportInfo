@@ -3,6 +3,7 @@ using ProgArchivesCore.Config;
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
 
 namespace ProgArchivesCore.SiteManagers
@@ -12,34 +13,34 @@ namespace ProgArchivesCore.SiteManagers
     /// </summary>
     public class SiteManager
     {
-        private string _proxyUserId;
-        private string _proxyUserPassword;
-        private string _proxyUserDomain;
-        private string _proxyAddress;
-        private int _proxyPort;
-        private bool _useProxy;
+        private readonly string _proxyUserId;
+        private readonly string _proxyUserPassword;
+        private readonly string _proxyUserDomain;
+        private readonly string _proxyAddress;
+        private readonly int _proxyPort;
+        private readonly bool _useProxy;
         private HttpClient _httpClient = null;
-
-        public SiteManager()
-        {
-            _proxyUserId = "";
-            _proxyUserPassword = "";
-            _proxyUserDomain = "";
-            _proxyAddress = "";
-            _proxyPort = 0;
-            _useProxy = false;
-
-            CreateClient();
-        }
 
         public SiteManager(ConfigurationFields configurationFields)
         {
-            _proxyUserId = configurationFields.ProxyUserId;
-            _proxyUserPassword = configurationFields.ProxyUserPassword;
-            _proxyUserDomain = configurationFields.ProxyUserDomain;
-            _proxyAddress = configurationFields.ProxyAddress;
-            _proxyPort = configurationFields.ProxyPort;
             _useProxy = configurationFields.HasProxy;
+
+            if (_useProxy)
+            {
+                _proxyUserId = configurationFields.ProxyUserId;
+                _proxyUserPassword = configurationFields.ProxyUserPassword;
+                _proxyUserDomain = configurationFields.ProxyUserDomain;
+                _proxyAddress = configurationFields.ProxyAddress;
+                _proxyPort = configurationFields.ProxyPort;
+            }
+            else
+            {
+                _proxyUserId = "";
+                _proxyUserPassword = "";
+                _proxyUserDomain = "";
+                _proxyAddress = "";
+                _proxyPort = 0;
+            }
 
             CreateClient();
         }
@@ -56,7 +57,7 @@ namespace ProgArchivesCore.SiteManagers
             {
                 ICredentials networkCredential = new NetworkCredential(_proxyUserId, _proxyUserPassword, _proxyUserDomain);
 
-                string address = $"{_proxyAddress}:{_proxyPort.ToString()}";
+                string address = $"{_proxyAddress}:{_proxyPort}";
 
                 WebProxy proxy = new WebProxy()
                 {
@@ -92,10 +93,8 @@ namespace ProgArchivesCore.SiteManagers
                 // string uri2 = "https://www.proggnosis.com/Artist/10";
 
                 Task<string> task = _httpClient.GetStringAsync(uri);
-                //Task.WhenAll(task);
-                Task.WaitAll(task);
-
-                string aaa = "";
+                task.Wait();
+                Task.WaitAll(task); //CA1843  Do not use 'WaitAll' with a single task
 
                 allPageData = task.Result;
 

@@ -1,17 +1,22 @@
-﻿using System.IO;
+﻿
 using System;
+using System.IO;
+
 using ProgArchivesCore.DataBaseManagers;
 using ProgArchivesCore.ProgArchivesSite;
 using ProgArchivesCore.SiteManagers;
 using ProgArchivesCore.Config;
 using ProgArchivesCore.Statics;
+using WinFormsProgArchives;
 
 namespace Candal
 {
-    internal static class Program2
+    internal static class HolesInAlbuns
     {
-        public static int Main2(string[] args)
+        public static int Main1(string[] args)
         {
+            LoggerUtils.Start();
+
             //before in ACCESS DB i run the function  "VerificaBuracos"
             //(this function confirm if all IDs are in table) and save on debug "hole" IDS in file at "\Resources\Holes.txt"
 

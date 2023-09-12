@@ -5,13 +5,16 @@ using ProgArchivesCore.ProgArchivesSite;
 using ProgArchivesCore.SiteManagers;
 using ProgArchivesCore.Config;
 using ProgArchivesCore.Statics;
+using WinFormsProgArchives;
 
 namespace Candal
 {
-    internal static class Program3
+    internal class InactiveAlbuns
     {
-        public static int Main3(string[] args)
+        public static int Main1(string[] args)
         {
+            LoggerUtils.Start();
+
             //before run this : ACCESS DB i run the function  query "SELECT ID FROM ALBUMS WHERE ISACTIVE = FALSE"
             //and save de result in file ebug in file at "\Resources\inactives_albums.txt.txt"
 

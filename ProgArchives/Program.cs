@@ -2,9 +2,12 @@
 using System;
 using ProgArchivesCore.Config;
 using ProgArchivesCore.DataBaseManagers;
+using ProgArchivesCore.Models;
 using ProgArchivesCore.ProgArchivesSite;
 using ProgArchivesCore.SiteManagers;
 using ProgArchivesCore.Statics;
+using Serilog;
+using WinFormsProgArchives;
 
 namespace Candal
 {
@@ -12,7 +15,9 @@ namespace Candal
     {
         public static int Main(string[] args)
         {
-            System.Console.WriteLine("Program starting.");
+            LoggerUtils.Start();
+
+            Log.Information("Program starting.");
 
             ConfigurationFields configurationFields = CommonUtils.LoadConfiguration();
 
@@ -60,21 +65,24 @@ namespace Candal
                 //Process Artists
                 if (doArtists)
                 {
-                    System.Console.WriteLine("Process Artists starting");
+                    Log.Information("Process Artists starting");
+                    progAchivesSite.EventArtistInfo += FireEventArtistInfo;
                     progAchivesSite.ProcessArtists(toArtistPage, processOnlyOne);
                 }
 
                 //Process Albuns
                 if (doAlbuns)
                 {
-                    System.Console.WriteLine("Process Albuns starting");
+                    Log.Information("Process Albuns starting");
+                    progAchivesSite.EventAlbumInfo += FireEventAlbumInfo;
                     progAchivesSite.ProcessAlbums(toAlbumPage, processOnlyOne);
                 }
 
                 //Process Countries
                 if (doCountries)
                 {
-                    System.Console.WriteLine("Process Countries starting");
+                    Log.Information("Process Countries starting");
+                    progAchivesSite.EventCountryInfo += FireEventCountryInfo;
                     progAchivesSite.ProcessCountries(firstDeleteAll: true);
                 }
 
@@ -84,18 +92,38 @@ namespace Candal
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine("");
-                System.Console.WriteLine("ERROR:");
-                System.Console.WriteLine(ex.Message);
-                System.Console.WriteLine(ex.Source);
-                System.Console.WriteLine(ex.StackTrace);
+                
+                Log.Error("ERROR:");
+                Log.Error(ex.Message);
+                Log.Error(ex.Source);
+                Log.Error(ex.StackTrace);
                 return 1;
             }
 
-            System.Console.WriteLine("Program finished");
+            Log.Information("Program finished");
 
             return 0;
         }
 
+        #region events
+
+        public static void FireEventCountryInfo(CountryInfo countryInfo, string uri)
+        {
+            Log.Information($"'MusicCollectionMsDos.FireEventCountryInfo' | URI={uri} | CountryInfo={countryInfo}");
+        }
+
+        public static void FireEventArtistInfo(ArtistInfo artistInfo, string uri)
+        {
+            Log.Information($"'MusicCollectionMsDos.FireEventArtistInfo' | URI={uri} | ArtistInfo={artistInfo}");
+        }
+
+        public static void FireEventAlbumInfo(AlbumInfo albumInfo, string uri)
+        {
+            Log.Information($"'MusicCollectionMsDos.FireEventAlbumInfo' | URI={uri} | AlbumInfo={albumInfo}");
+        }
+
+        #endregion
     }
+
+}
 }

@@ -1,16 +1,22 @@
 ﻿
-using Candal.Core;
 using System.IO;
 using System;
-using System.Configuration;
-
+using ProgArchivesCore.SiteManagers;
+using ProgArchivesCore.DataBaseManagers;
+using ProgArchivesCore.ProgArchivesSite;
+using ProgArchivesCore.Config;
+using ProgArchivesCore.Statics;
+using WinFormsProgArchives;
 
 namespace Candal
 {
-    internal static class Program2
+    internal static class Holes
     {
-        public static int Main(string[] args)
+        public static int Main1(string[] args)
         {
+            LoggerUtils.Start(); 
+
+            ConfigurationFields configurationFields = null;
             //FillDetectedHoles()
 
             //before in  ACCESS DB i run the function  "VerificaBuracos" and save de debug in file at "\Resources\Holes.txt"
@@ -25,8 +31,8 @@ namespace Candal
 
                 StreamReader file = new StreamReader(fullNameFile);
 
-                IDataBaseManager dataBaseManager = DatabaseLink();
-                SiteManager siteManager = SiteManagerLink();
+                IDataBaseManager dataBaseManager = CommonUtils.DatabaseLink(configurationFields);
+                SiteManager siteManager = CommonUtils.SiteManagerLink(configurationFields);
                 ProgAchivesSiteManager progAchivesSite = new ProgAchivesSiteManager(siteManager, dataBaseManager);
 
                 int counterLines = 0;
@@ -79,112 +85,6 @@ namespace Candal
 
             return 0;
         }
-
-        private static SiteManager SiteManagerLink()
-        {
-            SiteManager siteManager = null;
-
-            string temp = ConfigurationManager.AppSettings["ProxyNeeded"];
-            bool hasProxy = System.Convert.ToBoolean(temp);
-
-            if (hasProxy)
-            {
-                string userID = ConfigurationManager.AppSettings["ProxyUserId"];
-                string userPassword = ConfigurationManager.AppSettings["ProxyUserPassword"];
-                string userDomain = ConfigurationManager.AppSettings["ProxyDomain"];
-                string address = ConfigurationManager.AppSettings["ProxyAddress"];
-                temp = ConfigurationManager.AppSettings["ProxyPort"];
-                int port = System.Convert.ToInt32(temp); ;
-
-                siteManager = new SiteManager(userID, userPassword, userDomain, address, port);
-            }
-            else
-                siteManager = new SiteManager();
-
-            return siteManager;
-        }
-
-        private static IDataBaseManager DatabaseLink()
-        {
-            string dbEngine = ConfigurationManager.AppSettings["DataBaseEngine"].ToUpper().Trim();
-
-            switch (dbEngine)
-            {
-                case "MSACCESS":
-                    return DatabaseMsAccess();
-                case "SQLITE":
-                    return DatabaseSqlite();
-                case "MYSQL":
-                    throw new Exception("AppSettings:[DataBaseEngine] not valid.");
-                default:
-                    throw new Exception("AppSettings:[DataBaseEngine] not valid. (Options: 'MsAccess', 'Sqlite', 'MySql')");
-
-            }
-
-            //            string dataBaseUser = ConfigurationManager.AppSettings["DataBaseUser"];
-            //            string dataBasePassword = ConfigurationManager.AppSettings["DataBasePassword"];
-
-
-            //            //string dbName = "ProgArchives2010.mdb";
-            //            string currentDirectory = Environment.CurrentDirectory;
-            //            //string relName = @"\";
-
-            //#if DEBUG
-            //            currentDirectory = Directory.GetParent(currentDirectory).Parent.Parent.Parent.FullName;
-            //            //relName = @"\Resources\";
-            //#endif
-            //            string fullNameDB = System.IO.Path.Combine(currentDirectory, dataBaseLocation);
-            //            //string fullNameDB = currentDirectory + dataBaseLocation;
-
-            //            System.Console.WriteLine($"DataBase Path:{fullNameDB}");
-
-            //            //Open access database
-            //            IDataBaseManager dataBaseManager = new DataBaseAccessManager(fullNameDB);
-            //            //IDataBaseManager dataBaseManager = new DataBaseSqliteManager(fullNameDB);
-
-            //return dataBaseManager;
-        }
-
-        private static IDataBaseManager DatabaseMsAccess()
-        {
-            string dataBaseLocation = ConfigurationManager.AppSettings["DataBaseLocation"];
-
-            string currentDirectory = Environment.CurrentDirectory;
-
-#if DEBUG
-            currentDirectory = Directory.GetParent(currentDirectory).Parent.Parent.Parent.FullName;
-#endif
-            string fullNameDB = System.IO.Path.Join(currentDirectory, dataBaseLocation);
-
-            System.Console.WriteLine($"DataBase Path:{fullNameDB}");
-
-            //Open access database
-            IDataBaseManager dataBaseManager = new DataBaseAccessManager(fullNameDB);
-
-            return dataBaseManager;
-        }
-
-        private static IDataBaseManager DatabaseSqlite()
-        {
-            string dataBaseLocation = ConfigurationManager.AppSettings["DataBaseLocation"];
-
-            string currentDirectory = Environment.CurrentDirectory;
-
-#if DEBUG
-            currentDirectory = Directory.GetParent(currentDirectory).Parent.Parent.Parent.FullName;
-#endif
-            string fullNameDB = System.IO.Path.Join(currentDirectory, dataBaseLocation);
-
-            System.Console.WriteLine($"DataBase Path:{fullNameDB}");
-
-            //Open access database
-            IDataBaseManager dataBaseManager = new DataBaseSqliteManager(fullNameDB);
-
-            return dataBaseManager;
-        }
-
-
- 
 
         private static int GetPageFromLine(string line)
         {
