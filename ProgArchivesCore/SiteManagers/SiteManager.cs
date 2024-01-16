@@ -3,7 +3,6 @@ using ProgArchivesCore.Config;
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Runtime.Intrinsics.X86;
 using System.Threading.Tasks;
 
 namespace ProgArchivesCore.SiteManagers
@@ -81,6 +80,15 @@ namespace ProgArchivesCore.SiteManagers
             }
             else
                 _httpClient = new HttpClient();
+
+
+            //ver no fundo codigo que pode ajudar REF231
+
+            //com esta linhas deixou de dar: "The remote server returned an error: (403) Forbidden."
+            _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.53");
+            _httpClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml");
+            //_httpClient.DefaultRequestHeaders.Add("Accept-Charset", "ISO-8859-1");
+            _httpClient.DefaultRequestHeaders.Add("Accept-Charset", "utf-8");
         }
 
         public string GetAllHtmlData(string uri)
@@ -92,14 +100,22 @@ namespace ProgArchivesCore.SiteManagers
                 // string uri2 = "http://www.progarchives.com/artist.asp?id=12435";
                 // string uri2 = "https://www.proggnosis.com/Artist/10";
 
+
                 Task<string> task = _httpClient.GetStringAsync(uri);
-                task.Wait();
-                Task.WaitAll(task); //CA1843  Do not use 'WaitAll' with a single task
+                ////task.Wait();
+                ////Task.WaitAll(task); //CA1843  Do not use 'WaitAll' with a single task
+                Task.WhenAll(task);
 
                 allPageData = task.Result;
 
+                /////////////////////////////////////////////////////////////////////////////////
+
+                //See automation -> https://www.youtube.com/watch?v=fXrS73pqFho
+
+                //OLD 
+                //System.Net.WebClient _webClient = new System.Net.WebClient();
                 //_webClient.Encoding = System.Text.Encoding.UTF8;
-                //byte[] byteArray = _webClient.DownloadData(Site);
+                //byte[] byteArray = _webClient.DownloadData(uri);
                 //allPageData = System.Text.Encoding.Default.GetString(byteArray);
 
             }
@@ -112,3 +128,32 @@ namespace ProgArchivesCore.SiteManagers
         }
     }
 }
+
+
+//REF231
+//CookieContainer cookieContainer = new CookieContainer();
+//HttpClientHandler httpClientHandler = new HttpClientHandler();
+//httpClientHandler.AllowAutoRedirect = true;
+//httpClientHandler.UseCookies = true;
+//httpClientHandler.CookieContainer = cookieContainer;
+//HttpClient httpClient = new HttpClient(httpClientHandler);
+
+////com esta duas linhas deixou de dar: "The remote server returned an error: (403) Forbidden."
+//_httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.53");
+//_httpClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml");
+////_httpClient.DefaultRequestHeaders.Add("Accept-Charset", "ISO-8859-1");
+//_httpClient.DefaultRequestHeaders.Add("Accept-Charset", "utf-8");
+
+////até aqui deu
+
+////ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 Or SecurityProtocolType.Tls12 Or SecurityProtocolType.Tls11 Or SecurityProtocolType.Tls
+////'CALL GET /api/getNonce  
+//string login_url = "_host" + "/api/getNonce";
+//string login_parameter = "?user_name =" + "_username" + "&password=" + "_password";
+
+//Task<string> task1 = _httpClient.GetStringAsync(uri);
+//Task<HttpResponseMessage> task1 = httpClient.GetAsync(uri); //"login_url + login_parameter"
+//                                                            //HttpResponseMessage login_response = await httpClient.GetAsync("login_url + login_parameter");// as HttpResponseMessage;
+//                                                            //string login_contents = await login_response.Content.ReadAsStringAsync();
+//Task.WhenAll(task1);
+//string htmlData = task1.Result;
