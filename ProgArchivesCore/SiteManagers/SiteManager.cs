@@ -19,6 +19,7 @@ namespace ProgArchivesCore.SiteManagers
         private readonly int _proxyPort;
         private readonly bool _useProxy;
         private HttpClient _httpClient = null;
+        private Random _random = null;
 
         public SiteManager(ConfigurationFields configurationFields)
         {
@@ -89,6 +90,8 @@ namespace ProgArchivesCore.SiteManagers
             _httpClient.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml");
             //_httpClient.DefaultRequestHeaders.Add("Accept-Charset", "ISO-8859-1");
             _httpClient.DefaultRequestHeaders.Add("Accept-Charset", "utf-8");
+
+            _random = new Random();
         }
 
         public string GetAllHtmlData(string uri)
@@ -100,6 +103,11 @@ namespace ProgArchivesCore.SiteManagers
                 // string uri2 = "http://www.progarchives.com/artist.asp?id=12435";
                 // string uri2 = "https://www.proggnosis.com/Artist/10";
 
+                //for to not stress the site
+                int sleep = _random.Next(1, 15) * 1000;
+                Task task0 = Task.Delay(sleep);
+                Task.WhenAll(task0);
+                task0.Wait();
 
                 Task<string> task = _httpClient.GetStringAsync(uri);
                 ////task.Wait();
