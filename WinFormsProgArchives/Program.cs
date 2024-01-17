@@ -1,5 +1,7 @@
 using ProgArchivesCore.Config;
 using ProgArchivesCore.Statics;
+using System;
+using System.Windows.Forms;
 
 
 namespace WinFormsProgArchives

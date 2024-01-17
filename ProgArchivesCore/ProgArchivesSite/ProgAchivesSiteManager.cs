@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Threading.Tasks;
 using ProgArchivesCore.DataBaseManagers;
 using ProgArchivesCore.Models;
 using ProgArchivesCore.SiteManagers;
@@ -52,6 +53,14 @@ namespace ProgArchivesCore.ProgArchivesSite
             {
                 string uri = $"http://www.progarchives.com/artist.asp?id={page}";
 
+                //For test backgroundWorker - remove ini
+                //Task task0 = Task.Delay(10000);
+                ////Task.WhenAll(task0);
+                //task0.Wait();
+                //ArtistInfo artistInfo = new ArtistInfo(page, "");
+                //For test backgroundWorker - remove end
+
+                //proc ini
                 string allHtmlData = _siteManager.GetAllHtmlData(uri);
 
                 if (allHtmlData == null)
@@ -68,6 +77,7 @@ namespace ProgArchivesCore.ProgArchivesSite
                     _dataBaseManager.InsertArtist(artistInfo);
 
                 Log.Information($"'ProgArchivesCore.ProgArchivesSite.ProcessArtists' - Artist:{page}");
+                //proc end
 
                 if (EventArtistInfo != null)
                     EventArtistInfo(artistInfo, uri);

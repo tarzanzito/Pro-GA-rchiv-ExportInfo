@@ -1,4 +1,7 @@
-﻿namespace WinFormsProgArchives
+﻿using System.Drawing;
+using System.Windows.Forms;
+
+namespace WinFormsProgArchives
 {
     partial class FormMain
     {
@@ -46,7 +49,7 @@
             buttonProcessAlbums = new Button();
             buttonProcessCountries = new Button();
             buttonAnalyseArtists = new Button();
-            button2 = new Button();
+            buttonClose = new Button();
             buttonAnalyseAlbums = new Button();
             buttonAnalyseCountries = new Button();
             textBoxConnectionString = new TextBox();
@@ -55,7 +58,11 @@
             // 
             // backgroundWorker1
             // 
+            backgroundWorker1.WorkerReportsProgress = true;
+            backgroundWorker1.WorkerSupportsCancellation = true;
             backgroundWorker1.DoWork += backgroundWorker1_DoWork;
+            backgroundWorker1.ProgressChanged += backgroundWorker1_ProgressChanged;
+            backgroundWorker1.RunWorkerCompleted += backgroundWorker1_RunWorkerCompleted;
             // 
             // buttonProcessArtists
             // 
@@ -219,14 +226,15 @@
             buttonAnalyseArtists.UseVisualStyleBackColor = true;
             buttonAnalyseArtists.Click += buttonAnalyseArtists_Click;
             // 
-            // button2
+            // buttonClose
             // 
-            button2.Location = new Point(434, 118);
-            button2.Name = "button2";
-            button2.Size = new Size(60, 23);
-            button2.TabIndex = 19;
-            button2.Text = "Close";
-            button2.UseVisualStyleBackColor = true;
+            buttonClose.Location = new Point(434, 118);
+            buttonClose.Name = "buttonClose";
+            buttonClose.Size = new Size(60, 23);
+            buttonClose.TabIndex = 19;
+            buttonClose.Text = "Close";
+            buttonClose.UseVisualStyleBackColor = true;
+            buttonClose.Click += buttonClose_Click;
             // 
             // buttonAnalyseAlbums
             // 
@@ -275,7 +283,7 @@
             Controls.Add(label4);
             Controls.Add(buttonAnalyseCountries);
             Controls.Add(buttonAnalyseAlbums);
-            Controls.Add(button2);
+            Controls.Add(buttonClose);
             Controls.Add(buttonAnalyseArtists);
             Controls.Add(buttonProcessCountries);
             Controls.Add(buttonProcessAlbums);
@@ -322,7 +330,7 @@
         private Button buttonProcessAlbums;
         private Button buttonProcessCountries;
         private Button buttonAnalyseArtists;
-        private Button button2;
+        private Button buttonClose;
         private Button buttonAnalyseAlbums;
         private Button buttonAnalyseCountries;
         private TextBox textBoxConnectionString;

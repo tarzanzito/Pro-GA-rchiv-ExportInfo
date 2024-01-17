@@ -104,9 +104,9 @@ namespace ProgArchivesCore.SiteManagers
                 // string uri2 = "https://www.proggnosis.com/Artist/10";
 
                 //for to not stress the site
-                int sleep = _random.Next(1, 15) * 1000;
+                int sleep = _random.Next(1, 10) * 1000;
                 Task task0 = Task.Delay(sleep);
-                Task.WhenAll(task0);
+                //Task.WhenAll(task0);
                 task0.Wait();
 
                 Task<string> task = _httpClient.GetStringAsync(uri);

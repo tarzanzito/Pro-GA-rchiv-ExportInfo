@@ -1,21 +1,23 @@
-using ProgArchivesCore;
+
+using System;
+using System.Diagnostics;
+using System.Windows.Forms;
+using Serilog;
 using ProgArchivesCore.Config;
 using ProgArchivesCore.DataBaseManagers;
 using ProgArchivesCore.Models;
 using ProgArchivesCore.ProgArchivesSite;
 using ProgArchivesCore.SiteManagers;
 using ProgArchivesCore.Statics;
-using Serilog;
-using System.Diagnostics;
-using static ProgArchivesCore.Delegates;
+
 
 namespace WinFormsProgArchives
 {
     internal partial class FormMain : Form
     {
-        private ConfigurationFields? _configurationFields = null;
-        private IDataBaseManager? _dataBaseManager = null;
-        private SiteManager? _siteManager = null;
+        private ConfigurationFields _configurationFields = null;
+        private IDataBaseManager _dataBaseManager = null;
+        private SiteManager _siteManager = null;
         private int _lastArtistId;
         private int _lastAlbumId;
         private int _lastCountryId;
@@ -27,16 +29,11 @@ namespace WinFormsProgArchives
             InitializeComponent();
         }
 
-        private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
-        {
-
-        }
-
         private void buttonRefresh_Click(object sender, EventArgs e)
         {
             try
             {
-                RefreshData();
+                RefreshData(); //executa sql
             }
             catch (Exception ex)
             {
@@ -64,11 +61,25 @@ namespace WinFormsProgArchives
                 if (textBoxUntilArtist.Text.Trim() == "")
                     throw new Exception("Invalid input value. (must be greater than zero.");
 
+                RefreshData(); //executa sql
+
                 int toArtistPage = System.Convert.ToInt32(textBoxUntilArtist.Text);
+
+                if (toArtistPage <= _lastArtistId)
+                    throw new Exception("Nothing todo. ('Last Artist' is greather than 'Proc Until'");
 
                 bool processOnlyOne = checkBoxOnlyOne.Checked;
 
-                ProcessProgArchives(ProcessAction.Artists, toArtistPage, processOnlyOne);
+                ChangeInputState(false);
+
+                object[] objects = new object[3];
+                objects[0] = ProcessAction.Artists;
+                objects[1] = toArtistPage;
+                objects[2] = processOnlyOne;
+
+                backgroundWorker1.RunWorkerAsync(objects);
+                //ProcessProgArchives(ProcessAction.Artists, toArtistPage, processOnlyOne); //bloqueia a main thread
+                //ChangeInputState(true);
 
             }
             catch (Exception ex)
@@ -97,12 +108,25 @@ namespace WinFormsProgArchives
                 if (textBoxUntilAlbum.Text.Trim() == "")
                     throw new Exception("Invalid input value. (must be greater than zero.");
 
+                RefreshData();
+
                 int toAlbumPage = System.Convert.ToInt32(textBoxUntilAlbum.Text);
+
+                if (toAlbumPage <= _lastAlbumId)
+                    throw new Exception("Nothing todo. ('Last Album' is greather than 'Proc Until'");
 
                 bool processOnlyOne = checkBoxOnlyOne.Checked;
 
-                ProcessProgArchives(ProcessAction.Albums, toAlbumPage, processOnlyOne);
+                ChangeInputState(false);
 
+                object[] objects = new object[3];
+                objects[0] = ProcessAction.Albums;
+                objects[1] = toAlbumPage;
+                objects[2] = processOnlyOne;
+
+                backgroundWorker1.RunWorkerAsync(objects);
+                //ProcessProgArchives(ProcessAction.Albums, toAlbumPage, processOnlyOne); //bloqueia thread
+                //ChangeInputState(true);
             }
             catch (Exception ex)
             {
@@ -114,8 +138,18 @@ namespace WinFormsProgArchives
         {
             try
             {
-                ProcessProgArchives(ProcessAction.Countries, 0, false);
+                RefreshData();
 
+                ChangeInputState(false);
+
+                object[] objects = new object[3];
+                objects[0] = ProcessAction.Countries;
+                objects[1] = 0;
+                objects[2] = false;
+
+                backgroundWorker1.RunWorkerAsync(objects);
+                //ProcessProgArchives(ProcessAction.Countries, 0, false); //bloqqueia a thread
+                //ChangeInputState(true);
             }
             catch (Exception ex)
             {
@@ -162,7 +196,29 @@ namespace WinFormsProgArchives
             }
         }
 
+        private void buttonClose_Click(object sender, EventArgs e)
+        {
+            if (this.backgroundWorker1.IsBusy)
+                this.backgroundWorker1.CancelAsync();
+
+            Close();
+        }
+
         #region Private Methods
+
+        private void ChangeInputState(bool enable)
+        {
+            buttonRefresh.Enabled = enable;
+            buttonAnalyseArtists.Enabled = enable;
+            buttonAnalyseAlbums.Enabled = enable;
+            buttonAnalyseCountries.Enabled = enable;
+            checkBoxOnlyOne.Enabled = enable;
+            textBoxUntilArtist.Enabled = enable;
+            textBoxUntilAlbum.Enabled = enable;
+            buttonProcessArtists.Enabled = enable;
+            buttonProcessAlbums.Enabled = enable;
+            buttonProcessCountries.Enabled = enable;
+        }
 
         private void BrowserOpen(string url)
         {
@@ -180,25 +236,12 @@ namespace WinFormsProgArchives
 
         private void ProcessProgArchives(ProcessAction processAction, int untilPageId, bool processOnlyOne)
         {
-            RefreshData();
-
-            if (processAction == ProcessAction.Artists)
-            {
-                if (untilPageId <= _lastArtistId)
-                    throw new Exception("Nothing todo. ('Last Artist' is greather than 'Proc Until'");
-            }
-
-            if (processAction == ProcessAction.Albums)
-            {
-                if (untilPageId <= _lastAlbumId)
-                    throw new Exception("Nothing todo. ('Last Album' is greather than 'Proc Until'");
-            }
-
             //Open access database
             _dataBaseManager = CommonUtils.DatabaseLink(_configurationFields);
 
             //open site manager
             _siteManager = CommonUtils.SiteManagerLink(_configurationFields);
+
 
 
             ////ProgGnosisSiteManager progGnosisSiteManager = new ProgGnosisSiteManager(siteManager, dataBaseManager);
@@ -208,35 +251,37 @@ namespace WinFormsProgArchives
 
             //Process ProgAchivesSite
             ProgAchivesSiteManager progAchivesSite = new ProgAchivesSiteManager(_siteManager, _dataBaseManager);
-            
+
             //Process Artists
             if (processAction == ProcessAction.Artists)
             {
-                if (untilPageId <= _lastArtistId)
-                    throw new Exception("Nothing todo. (last Processed Artist is greather than Until Artist");
+                //if (untilPageId <= _lastArtistId)
+                //    throw new Exception("Nothing todo. (last Processed Artist is greather than Until Artist");
 
                 progAchivesSite.EventArtistInfo += FireEventArtistInfo;
 
-                progAchivesSite.ProcessArtists(untilPageId, processOnlyOne);
+                progAchivesSite.ProcessArtists(untilPageId, processOnlyOne); //bloqueia a thread
             }
 
+            //aqui de passar ao background worker
             ////Process Albuns
             if (processAction == ProcessAction.Albums)
             {
-                if (untilPageId <= _lastAlbumId)
-                    throw new Exception("Nothing todo. (last Processed Album is greather than Until Album");
+                //if (untilPageId <= _lastAlbumId)
+                //    throw new Exception("Nothing todo. (last Processed Album is greather than Until Album");
 
                 progAchivesSite.EventAlbumInfo += FireEventAlbumInfo;
-                progAchivesSite.ProcessAlbums(untilPageId, processOnlyOne);
+                progAchivesSite.ProcessAlbums(untilPageId, processOnlyOne); //bloqueia a thread
             }
 
             //Process Countries
             if (processAction == ProcessAction.Countries)
             {
                 progAchivesSite.EventCountryInfo += FireEventCountryInfo;
-                progAchivesSite.ProcessCountries(firstDeleteAll: true);
+                progAchivesSite.ProcessCountries(firstDeleteAll: true); //bloqueia a thread
             }
         }
+
         private void RefreshData()
         {
             //Open access database
@@ -265,7 +310,9 @@ namespace WinFormsProgArchives
 
         public void FireEventArtistInfo(ArtistInfo artistInfo, string uri)
         {
-            listBox1.Items.Add(uri);
+            this.backgroundWorker1.ReportProgress(0, uri);
+            //listBox1.Items.Add(uri);
+
             Log.Information($"'MusicCollectionMsDos.FireEventArtistInfo' | URI={uri} | ArtistInfo={artistInfo}");
         }
 
@@ -273,6 +320,30 @@ namespace WinFormsProgArchives
         {
             listBox1.Items.Add(uri);
             Log.Information($"'MusicCollectionMsDos.FireEventAlbumInfo' | URI={uri} | AlbumInfo={albumInfo}");
+        }
+
+        #endregion
+
+        #region "Background Worker"
+
+        private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            object[] objects = e.Argument as object[];
+            ProcessAction processAction = (ProcessAction)objects[0];
+            int untilPageId = (int)objects[1];
+            bool processOnlyOne = (bool)objects[2];
+            ProcessProgArchives(processAction, untilPageId, processOnlyOne);
+
+        }
+
+        private void backgroundWorker1_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        {
+            listBox1.Items.Add(e.UserState.ToString());
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+            this.ChangeInputState(true);
         }
 
         #endregion

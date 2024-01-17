@@ -1,12 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<TargetFramework>net6.0</TargetFramework>
+	<TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <AssemblyVersion>2.2.1.1</AssemblyVersion>
     <FileVersion>2.2.1.1</FileVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="ProgGnosisSite\**" />
+    <EmbeddedResource Remove="ProgGnosisSite\**" />
+    <None Remove="ProgGnosisSite\**" />
+  </ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="System.Data.OleDb" Version="7.0.0" />
