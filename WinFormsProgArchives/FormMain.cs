@@ -31,14 +31,19 @@ namespace WinFormsProgArchives
 
         private void buttonRefresh_Click(object sender, EventArgs e)
         {
+            ChangeVisualComponentsState(false);
+
             try
             {
+               
                 RefreshData(); //executa sql
             }
             catch (Exception ex)
             {
                 ShowError(sender, e, ex);
             }
+ 
+            ChangeVisualComponentsState(true);
         }
 
         private void FormMain_Shown(object sender, EventArgs e)
@@ -61,7 +66,7 @@ namespace WinFormsProgArchives
                 if (textBoxUntilArtist.Text.Trim() == "")
                     throw new Exception("Invalid input value. (must be greater than zero.");
 
-                RefreshData(); //executa sql
+                //RefreshData(); //executa sql
 
                 int toArtistPage = System.Convert.ToInt32(textBoxUntilArtist.Text);
 
@@ -70,7 +75,7 @@ namespace WinFormsProgArchives
 
                 bool processOnlyOne = checkBoxOnlyOne.Checked;
 
-                ChangeInputState(false);
+                ChangeVisualComponentsState(false);
 
                 object[] objects = new object[3];
                 objects[0] = ProcessAction.Artists;
@@ -91,14 +96,7 @@ namespace WinFormsProgArchives
 
         private void FormMain_Load(object sender, EventArgs e)
         {
-            try
-            {
-                RefreshData();
-            }
-            catch (Exception ex)
-            {
-                ShowError(sender, e, ex);
-            }
+            buttonRefresh_Click(sender, e);
         }
 
         private void buttonProcessAlbums_Click(object sender, EventArgs e)
@@ -108,7 +106,7 @@ namespace WinFormsProgArchives
                 if (textBoxUntilAlbum.Text.Trim() == "")
                     throw new Exception("Invalid input value. (must be greater than zero.");
 
-                RefreshData();
+                //RefreshData();//executa sql
 
                 int toAlbumPage = System.Convert.ToInt32(textBoxUntilAlbum.Text);
 
@@ -117,7 +115,7 @@ namespace WinFormsProgArchives
 
                 bool processOnlyOne = checkBoxOnlyOne.Checked;
 
-                ChangeInputState(false);
+                ChangeVisualComponentsState(false);
 
                 object[] objects = new object[3];
                 objects[0] = ProcessAction.Albums;
@@ -138,9 +136,9 @@ namespace WinFormsProgArchives
         {
             try
             {
-                RefreshData();
+                //RefreshData();//executa sql
 
-                ChangeInputState(false);
+                ChangeVisualComponentsState(false);
 
                 object[] objects = new object[3];
                 objects[0] = ProcessAction.Countries;
@@ -206,7 +204,7 @@ namespace WinFormsProgArchives
 
         #region Private Methods
 
-        private void ChangeInputState(bool enable)
+        private void ChangeVisualComponentsState(bool enable)
         {
             buttonRefresh.Enabled = enable;
             buttonAnalyseArtists.Enabled = enable;
@@ -218,6 +216,11 @@ namespace WinFormsProgArchives
             buttonProcessArtists.Enabled = enable;
             buttonProcessAlbums.Enabled = enable;
             buttonProcessCountries.Enabled = enable;
+
+            if (enable)
+                this.Cursor = Cursors.Default;
+            else
+                this.Cursor = Cursors.WaitCursor;
         }
 
         private void BrowserOpen(string url)
@@ -343,7 +346,7 @@ namespace WinFormsProgArchives
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
         {
-            this.ChangeInputState(true);
+            this.ChangeVisualComponentsState(true);
         }
 
         #endregion
