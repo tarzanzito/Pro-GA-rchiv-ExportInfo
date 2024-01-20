@@ -6,14 +6,20 @@
     <Nullable>disable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>disable</ImplicitUsings>
+    <StartupObject>WinFormsProgArchives.Program</StartupObject>
+    <ApplicationIcon>downloadthearrow_261.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="downloadthearrow_261.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ProgArchivesCore\ProgArchivesCore.csproj" />
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
+		<PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
 		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
 	</ItemGroup>
 	
