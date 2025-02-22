@@ -307,7 +307,9 @@ namespace WinFormsProgArchives
 
         public void FireEventCountryInfo(CountryInfo countryInfo, string uri)
         {
-            listBox1.Items.Add(uri);
+            this.backgroundWorker1.ReportProgress(0, uri);
+            //listBox1.Items.Add(uri);
+
             Log.Information($"'MusicCollectionMsDos.FireEventCountryInfo' | URI={uri} | CountryInfo={countryInfo}");
         }
 
@@ -321,7 +323,9 @@ namespace WinFormsProgArchives
 
         public void FireEventAlbumInfo(AlbumInfo albumInfo, string uri)
         {
-            listBox1.Items.Add(uri);
+            this.backgroundWorker1.ReportProgress(0, uri);
+            //listBox1.Items.Add(uri);
+
             Log.Information($"'MusicCollectionMsDos.FireEventAlbumInfo' | URI={uri} | AlbumInfo={albumInfo}");
         }
 
